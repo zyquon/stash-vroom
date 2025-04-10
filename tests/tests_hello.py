@@ -1,4 +1,4 @@
-from stash_heresphere.hello import say_hello
+from stash_vroom.hello import say_hello
 
 def test_say_hello(capsys):
     say_hello()
