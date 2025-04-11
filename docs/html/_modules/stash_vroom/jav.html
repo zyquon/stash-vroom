@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>stash_vroom.jav &#8212; Stash VRoom  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=0c472235" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyramid.css?v=424f8d56" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.jav</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for stash_vroom.jav</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2025 Zyquo Onrel</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides utility functions for working with JAV files and filenames.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">slr</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="get_is_jav">
+<a class="viewcode-back" href="../../stash_vroom.jav.html#stash_vroom.jav.get_is_jav">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_is_jav</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine if the given file is a JAV (Japanese Adult Video) file.</span>
+
+<span class="sd">    :param filepath: A filename or file path</span>
+<span class="sd">    :type filepath: str</span>
+<span class="sd">    :return: `True` if the file is a JAV, `False` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="ow">not</span> <span class="n">get_jav_info</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_jav_info">
+<a class="viewcode-back" href="../../stash_vroom.jav.html#stash_vroom.jav.get_jav_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_jav_info</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">mtch</span> <span class="o">=</span> <span class="n">match_jav_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mtch</span><span class="p">:</span>
+        <span class="c1">#log.debug(f&#39;  - Not JAV; no regex match&#39;)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">years</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">str</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">2030</span><span class="p">)</span> <span class="p">]</span>
+    <span class="k">if</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
+        <span class="c1"># log.info(f&#39;  - Not JAV for year match {repr(filename)}: &quot;{mtch[1]}&quot; &quot;{mtch[2]}&quot; {mtch[3]}&#39;)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="k">if</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^part&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="c1"># log.debug(f&#39;  - JAV match {repr(filename)}: &quot;{mtch[1]}&quot; &quot;{mtch[2]}&quot; {mtch[3]} {repr(mtch[4])} {repr(part)}&#39;)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;studio&#39;</span><span class="p">:</span><span class="n">mtch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="n">mtch</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;mid&#39;</span><span class="p">:</span><span class="n">mtch</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;filename&#39;</span><span class="p">:</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;part&#39;</span><span class="p">:</span><span class="n">part</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="match_jav_filename">
+<a class="viewcode-back" href="../../stash_vroom.jav.html#stash_vroom.jav.match_jav_filename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">match_jav_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid filename: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">ok_extension_re</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_vid_re</span><span class="p">()</span>
+
+    <span class="n">slr_info</span> <span class="o">=</span> <span class="n">slr</span><span class="o">.</span><span class="n">get_slr_info</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">slr_info</span><span class="p">:</span>
+        <span class="c1">#log.debug(f&#39;  - Not JAV; matched slr: {slr_info}&#39;)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;-181_180x180_3dh_LR.mp4&#39;</span><span class="p">):</span>
+        <span class="c1">#log.debug(f&#39;  - Not JAV; matched suffix&#39;)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">prefixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SLR-&#39;</span><span class="p">,</span> <span class="s1">&#39;SLR_&#39;</span><span class="p">,</span> <span class="s1">&#39;JillVR_&#39;</span><span class="p">,</span> <span class="s1">&#39;realhotvr-&#39;</span><span class="p">,</span> <span class="s1">&#39;wankzvr-&#39;</span><span class="p">,</span> <span class="s1">&#39;reality-lovers-&#39;</span><span class="p">,</span> <span class="s1">&#39;sexbabesvr-&#39;</span><span class="p">,</span> <span class="s1">&#39;only2xvr-&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="c1">#log.debug(f&#39;  - Not JAV; matched prefix: {prefix}&#39;)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">filename</span>
+
+    <span class="c1"># Fix all the WVR variants first.</span>
+    <span class="c1">#fname = re.sub(r&#39;^wvr0(\d)&#39;                    , r&#39;WVR1-\1&#39;, fname, flags=re.IGNORECASE)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^2DSVR\b&#39;</span>                     <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;DSVR&#39;</span>   <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-11-(\d\d\d)&#39;</span>             <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR1-\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-2-(\d\d\d)&#39;</span>              <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR1-\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-101(\d\d\d)&#39;</span>             <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR1\1&#39;</span> <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-11(\d\d\d)&#39;</span>              <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR1\1&#39;</span> <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-2(\d)&#39;</span>                   <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR1\1&#39;</span> <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR5D-&#39;</span>                      <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR6-&#39;</span>  <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR5-D(\d)&#39;</span>                  <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR6-\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR5D(\d\d\d)&#39;</span>               <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR6\1&#39;</span> <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR7(\d\d\w)\b&#39;</span>              <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR80\1&#39;</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-9(\d\d\d)&#39;</span>              <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR8\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-9(\d\d\d)&#39;</span>               <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR8\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR8d\b&#39;</span>                     <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR9&#39;</span>  <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^WVR-91(\d\d\d)&#39;</span>              <span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;WVR9\1&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="c1"># Fix all the rest.</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">ok_extension_re</span>                    <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-_\b]mkx199&#39;</span>                    <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-_\b]mkx219&#39;</span>                    <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-_]*(299|320|640|720|\d\d\d\d)p&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;179-SBS\b&#39;</span>                       <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;179_LR\b&#39;</span>                        <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;_\d+-SLR\b&#39;</span>                      <span class="p">,</span> <span class="s1">&#39;&#39;</span>      <span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="c1"># SLR downloads</span>
+    <span class="c1">#fname = re.sub(r&#39;abc122&#39;, &#39;&#39;, fname)</span>
+
+    <span class="c1">#log.debug(f&#39;-- fname = {repr(fname)}&#39;)</span>
+    <span class="n">connector_re</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[-_0\s\.]*&#39;</span>
+    <span class="n">part_re</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">connector_re</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(\d{0,2}\b|[a-z]\b|part\d+)&#39;</span>
+    <span class="n">jav_re</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\b&#39;</span>
+        <span class="c1">#+ r&#39;(2?[a-z]{3,9}(?:6|6D|8|9D)?)&#39;</span>
+        <span class="c1">#+ r&#39;(2?[a-z]{3,9})&#39;</span>
+        <span class="c1">#+ r&#39;(WVR0|WVR4|WVR8|WVR9|WVR6)&#39;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(WVR0|WVR4|WVR8|WVR9|WVR6|[a-z]{3,9})&#39;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">connector_re</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(\d{2,6})&#39;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:&#39;</span> <span class="o">+</span> <span class="n">part_re</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;)?&#39;</span>
+    <span class="p">)</span>
+    <span class="n">mtch</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">jav_re</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mtch</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.jav</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Zyquo Onrel.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

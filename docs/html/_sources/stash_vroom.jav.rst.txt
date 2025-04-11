@@ -1,0 +1,7 @@
+stash\_vroom.jav module
+=======================
+
+.. automodule:: stash_vroom.jav
+   :members:
+   :show-inheritance:
+   :undoc-members:

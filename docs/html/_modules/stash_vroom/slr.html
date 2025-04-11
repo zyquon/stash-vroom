@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>stash_vroom.slr &#8212; Stash VRoom  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=0c472235" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyramid.css?v=424f8d56" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.slr</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for stash_vroom.slr</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2025 Zyquo Onrel</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module helps to work with files downloaded from SLR and its network.</span>
+
+<span class="sd">It helps to detect and extract important information from the download filenames.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_is_slr">
+<a class="viewcode-back" href="../../stash_vroom.slr.html#stash_vroom.slr.get_is_slr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_is_slr</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return `True` if the file is a SLR or related site download.</span>
+
+<span class="sd">    :param filepath: A filename or file path</span>
+<span class="sd">    :type filepath: str</span>
+<span class="sd">    :return: `True` if the file is a SLR download, `False` otherwise.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    &gt;&gt;&gt; from stash_vroom.slr import get_is_slr</span>
+<span class="sd">    &gt;&gt;&gt; filename = &#39;SLR_StudioName_Title_Original_1080p_12345_LR_180.mp4&#39;</span>
+<span class="sd">    &gt;&gt;&gt; if get_is_slr(filename):</span>
+<span class="sd">    ...     print(f&quot;Downloaded from SLR or related site: {filename}&quot;)</span>
+<span class="sd">    Downloaded from SLR or related site: SLR_StudioName_Title_Original_1080p_12345_LR_180.mp4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="ow">not</span> <span class="ow">not</span> <span class="n">get_slr_info</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_slr_info">
+<a class="viewcode-back" href="../../stash_vroom.slr.html#stash_vroom.slr.get_slr_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_slr_info</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract metadata from SLR-style filenames.</span>
+
+<span class="sd">    :param filepath: A filename or file path</span>
+<span class="sd">    :type filepath: str</span>
+<span class="sd">    :return: A tuple containing site, studio, title, resolution, SLR ID, and projection.</span>
+<span class="sd">    :rtype: tuple</span>
+
+<span class="sd">    &gt;&gt;&gt; from stash_vroom.slr import get_slr_info</span>
+<span class="sd">    &gt;&gt;&gt; filename = &#39;SLR_StudioName_Title_Original_1080p_12345_LR_180.mp4&#39;</span>
+<span class="sd">    &gt;&gt;&gt; site, studio, title, v_res, slr_id, projection = get_slr_info(filename)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;To see &quot;{title}&quot; by {studio} at {projection}, search {site} for: {slr_id}&quot;)</span>
+<span class="sd">    To see &quot;Title_Original&quot; by StudioName at LR_180, search SLR for: 12345</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+    <span class="n">studio_re</span> <span class="o">=</span> <span class="n">get_slr_re</span><span class="p">()</span>
+    <span class="n">mtch</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">studio_re</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mtch</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">site</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">studio</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">v_res</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">slr_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mtch</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">mtch</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">projection</span> <span class="o">==</span> <span class="s1">&#39;FISHEYE190_alpha&#39;</span><span class="p">:</span>
+        <span class="c1"># log.warning(f&#39;Stripping _alpha from projection: FISHEYE190&#39;)</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;FISHEYE190&#39;</span>
+
+    <span class="k">return</span> <span class="n">site</span><span class="p">,</span> <span class="n">studio</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">v_res</span><span class="p">,</span> <span class="n">slr_id</span><span class="p">,</span> <span class="n">projection</span></div>
+
+
+<div class="viewcode-block" id="get_slr_re">
+<a class="viewcode-back" href="../../stash_vroom.slr.html#stash_vroom.slr.get_slr_re">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_slr_re</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;SLR|DeoVR|JillVR&#39;</span><span class="p">,</span> <span class="n">studio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a regular expression to match SLR-style filenames.</span>
+
+<span class="sd">    Returns a pattern as string because it can be useful both within Python and</span>
+<span class="sd">    also submitting to Stash as a regex filter.</span>
+
+<span class="sd">    :param prefix: A string that specifies the prefix for the regex. </span>
+<span class="sd">                   Must be either `&#39;^&#39;` (default, more useful for filenames) </span>
+<span class="sd">                   or `&#39;/&#39;` (useful for file paths or URLs).</span>
+<span class="sd">    :type prefix: str</span>
+<span class="sd">    :param site: A regex pattern for the site name. Defaults to `&#39;SLR|DeoVR|JillVR&#39;`.</span>
+<span class="sd">    :type site: str</span>
+<span class="sd">    :param studio: A regex pattern for the studio name. Defaults to `None`, </span>
+<span class="sd">                   which matches any studio.</span>
+<span class="sd">    :type studio: str, optional</span>
+<span class="sd">    :param short: If `True`, generates a shorter regex that excludes resolution </span>
+<span class="sd">                  and projection details. Defaults to `False`.</span>
+<span class="sd">    :type short: bool</span>
+<span class="sd">    :return: A regex pattern string.</span>
+<span class="sd">    :rtype: str</span>
+
+<span class="sd">    .. tip::</span>
+<span class="sd">       This regex works as a Stash query.</span>
+
+<span class="sd">       &gt;&gt;&gt; from stash_vroom.slr import get_slr_re</span>
+<span class="sd">       &gt;&gt;&gt; filepath_re = get_slr_re(prefix=&#39;/&#39;)</span>
+<span class="sd">       &gt;&gt;&gt; path_filter = {&#39;modifier&#39;:&#39;MATCHES_REGEX&#39;, &#39;value&#39;:filepath_re}</span>
+<span class="sd">       &gt;&gt;&gt; print(f&#39;This filter will find SLR files in a Stash repo: {path_filter}&#39;)</span>
+<span class="sd">       This filter will find SLR files in a Stash repo: {&#39;modifier&#39;: &#39;MATCHES_REGEX&#39;, &#39;value&#39;: &lt;regex pattern&gt;}</span>
+
+<span class="sd">    .. seealso::</span>
+<span class="sd">       :func:`get_slr_info` for extracting metadata from filenames using the </span>
+<span class="sd">       regex generated by this function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;^&#39;</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;^/.+/&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prefix must be &quot;^&quot; or &quot;/&quot;&#39;</span><span class="p">)</span>
+
+    <span class="n">studio</span> <span class="o">=</span> <span class="n">studio</span> <span class="ow">or</span> <span class="sa">r</span><span class="s1">&#39;.+?&#39;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">site</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;)_(&#39;</span> <span class="o">+</span> <span class="n">studio</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;)_(.+)&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">short</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;_(original|\d+p)_(\d+)_(LR_180|TB_360|FISHEYE190_alpha|FISHEYE190|FISHEYE|MKX200)&#39;</span>
+    <span class="n">result</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;(\.fix|\.mp4)?\.mp4$&#39;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.slr</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Zyquo Onrel.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

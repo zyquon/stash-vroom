@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>stash_vroom.util module &#8212; Stash VRoom  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=0c472235" />
+    <link rel="stylesheet" type="text/css" href="_static/pyramid.css?v=424f8d56" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="stash_vroom.slr module" href="stash_vroom.slr.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.slr.html" title="stash_vroom.slr module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="stash_vroom.html" accesskey="U">stash_vroom package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.util module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-stash_vroom.util">
+<span id="stash-vroom-util-module"></span><h1>stash_vroom.util module<a class="headerlink" href="#module-stash_vroom.util" title="Link to this heading">¶</a></h1>
+<p>This module has common and frequently-used functions, which have no big dependencies.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="stash_vroom.util.get_vid_re">
+<span class="sig-prename descclassname"><span class="pre">stash_vroom.util.</span></span><span class="sig-name descname"><span class="pre">get_vid_re</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('mp4',</span> <span class="pre">'m4v',</span> <span class="pre">'mkv',</span> <span class="pre">'avi',</span> <span class="pre">'webm',</span> <span class="pre">'wmv')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/stash_vroom/util.html#get_vid_re"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.util.get_vid_re" title="Link to this definition">¶</a></dt>
+<dd><p>Return a regular expression pattern to match file extensions.</p>
+<p>This is useful both for examining Python strings and also to submit to Stash as
+to find scenes with a regex filter. That is why this function returns a string and not
+a Python regex object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extensions</strong> – Optional list of</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A regex pattern that matches video file extensions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">stash_vroom.util module</a><ul>
+<li><a class="reference internal" href="#stash_vroom.util.get_vid_re"><code class="docutils literal notranslate"><span class="pre">get_vid_re()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="stash_vroom.slr.html"
+                          title="previous chapter">stash_vroom.slr module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/stash_vroom.util.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.slr.html" title="stash_vroom.slr module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="stash_vroom.html" >stash_vroom package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.util module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Zyquo Onrel.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+stash\_vroom.slr module
+=======================
+
+.. automodule:: stash_vroom.slr
+   :members:
+   :show-inheritance:
+   :undoc-members:
