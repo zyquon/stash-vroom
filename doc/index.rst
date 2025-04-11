@@ -6,23 +6,28 @@
 Stash-VRoom!
 ============
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+Stash-VRoom is a Stash plugin that provides adds HereSphere support for browsing and viewing VR videos.
 
-   stash_vroom
+User Guide
+==========
+
+The `User Guide <user_guide.html>`_ explains how to run and use Stash-VRoom.
+
+Design
+======
+
+The `Design <design.html>`_ document explains the design, tradeoffs, and internal thinking behind Stash-VRoom.
 
 Cookbook
-=============
+========
 
-To do
+Examples and recipes for using this library.
 
-.. Code Example
-.. ============
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-.. Here is an example of the `say_hello` function:
-
-.. .. literalinclude:: ../stash_vroom/jav.py
-..    :language: python
-..    :lines: 14-20
-
+   user_guide
+   design
+   cookbook
+   stash_vroom
