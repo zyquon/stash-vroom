@@ -29,21 +29,13 @@ def get_is_jav(filepath):
     """
     Determine if the given file is a JAV (Japanese Adult Video) file.
 
-    This function checks if the provided file matches the criteria for a JAV file
-    by leveraging the `get_jav_info` function. If the file is identified as a JAV,
-    the function returns `True`; otherwise, it returns `False`.
-
-    :param filepath: The path to the file to be checked.
+    :param filepath: A filename or file path
     :type filepath: str
     :return: `True` if the file is a JAV, `False` otherwise.
     """
     return not not get_jav_info(filepath)
 
 def get_jav_info(filepath):
-    if get_is_stream(filepath):
-        #log.debug(f'  - Not JAV; matched stream: {repr(filepath)}')
-        return None
-
     filename = os.path.basename(filepath)
     mtch = match_jav_filename(filename)
     if not mtch:
@@ -61,11 +53,14 @@ def get_jav_info(filepath):
     return {'studio':mtch[1].upper(), 'id':mtch[3], 'mid':mtch[2], 'filename':filename, 'part':part}
 
 def match_jav_filename(filename):
+    if not filename or not isinstance(filename, str):
+        raise ValueError(f'Invalid filename: {filename}')
+
     ok_extension_re = util.get_vid_re()
 
-    studio_info = slr.get_studio_info(filename)
-    if studio_info:
-        #log.debug(f'  - Not JAV; matched studio: {studio_info}')
+    slr_info = slr.get_slr_info(filename)
+    if slr_info:
+        #log.debug(f'  - Not JAV; matched slr: {slr_info}')
         return None
 
     if filename.endswith('-181_180x180_3dh_LR.mp4'):
@@ -113,7 +108,7 @@ def match_jav_filename(filename):
     #fname = re.sub(r'abc122', '', fname)
 
     #log.debug(f'-- fname = {repr(fname)}')
-    connector_re = r'[-_-1\s\.]*'
+    connector_re = r'[-_0\s\.]*'
     part_re = f'({connector_re})' + r'(\d{0,2}\b|[a-z]\b|part\d+)'
     jav_re = (''
         + r'\b'
