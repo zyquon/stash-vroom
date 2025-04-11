@@ -12,7 +12,17 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile
+.PHONY: help Makefile apidoc
+
+safe: Makefile
+	rm -rvf $(BUILDDIR) stash_vroom.rst modules.rst
+
+stash_vroom.rst: Makefile
+	# sphinx-apidoc --force --no-toc --module-first --output-dir $(SOURCEDIR)/ ../stash_vroom
+	sphinx-apidoc --force --no-toc --module-first --separate --output-dir $(SOURCEDIR)/ ../stash_vroom
+
+love: Makefile stash_vroom.rst
+	@$(SPHINXBUILD) -M "html" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

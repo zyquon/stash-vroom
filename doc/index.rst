@@ -3,15 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Stash VRoom documentation
-=========================
-
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+Stash-VRoom!
+============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
+
+   stash_vroom
+
+Cookbook
+=============
+
+To do
+
+.. Code Example
+.. ============
+
+.. Here is an example of the `say_hello` function:
+
+.. .. literalinclude:: ../stash_vroom/jav.py
+..    :language: python
+..    :lines: 14-20
 
