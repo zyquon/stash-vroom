@@ -12,6 +12,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   stash_vroom.heresphere
    stash_vroom.jav
    stash_vroom.slr
    stash_vroom.util

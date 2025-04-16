@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>stash_vroom.heresphere module &#8212; Stash VRoom  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=0c472235" />
+    <link rel="stylesheet" type="text/css" href="_static/pyramid.css?v=424f8d56" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="stash_vroom.jav module" href="stash_vroom.jav.html" />
+    <link rel="prev" title="stash_vroom package" href="stash_vroom.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.jav.html" title="stash_vroom.jav module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.html" title="stash_vroom package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="stash_vroom.html" accesskey="U">stash_vroom package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.heresphere module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-stash_vroom.heresphere">
+<span id="stash-vroom-heresphere-module"></span><h1>stash_vroom.heresphere module<a class="headerlink" href="#module-stash_vroom.heresphere" title="Link to this heading">¶</a></h1>
+<p>This module provides a convenient way to serve Stash content to HereSphere
+and easily handle user events and interactions without writing an entire web service.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<p>Here’s a basic example of using the HereSphere API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">stash_vroom.heresphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_event</span>
+
+<span class="nd">@on_event</span><span class="p">(</span><span class="s1">&#39;play&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_play</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Playing scene: </span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nd">@on_event</span><span class="p">(</span><span class="s1">&#39;favorite&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_favorite</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Marking scene as favorite: </span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nd">@on_event</span><span class="p">(</span><span class="s1">&#39;un-favorite&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_unfavorite</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Marking scene as not favorite: </span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.HereSphereApp">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">stash_vroom.heresphere.</span></span><span class="sig-name descname"><span class="pre">HereSphereApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#HereSphereApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.HereSphereApp" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Main class for the HereSphere application.</p>
+<p>Similar to Flask’s Flask class, this manages event handlers and provides
+decorators for registering them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.HereSphereApp.on_event">
+<span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#HereSphereApp.on_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.HereSphereApp.on_event" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator for registering event handlers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_name</strong> – Name of the event to handle (e.g., “delete”, “favorite”, “play”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorator function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.HereSphereApp.trigger_event">
+<span class="sig-name descname"><span class="pre">trigger_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#stash_vroom.heresphere.Scene" title="stash_vroom.heresphere.Scene"><span class="pre">Scene</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#HereSphereApp.trigger_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.HereSphereApp.trigger_event" title="Link to this definition">¶</a></dt>
+<dd><p>Trigger an event and call all registered handlers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> – Name of the event to trigger</p></li>
+<li><p><strong>scene</strong> – Scene object to pass to handlers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of results from all handlers</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.Scene">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">stash_vroom.heresphere.</span></span><span class="sig-name descname"><span class="pre">Scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#Scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.Scene" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a video scene in HereSphere.</p>
+<p>This is a simplified representation that will be passed to event handlers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.on_event">
+<span class="sig-prename descclassname"><span class="pre">stash_vroom.heresphere.</span></span><span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#on_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.on_event" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator for registering event handlers on the global app.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_name</strong> – Name of the event to handle</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorator function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="stash_vroom.heresphere.trigger_event">
+<span class="sig-prename descclassname"><span class="pre">stash_vroom.heresphere.</span></span><span class="sig-name descname"><span class="pre">trigger_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#stash_vroom.heresphere.Scene" title="stash_vroom.heresphere.Scene"><span class="pre">Scene</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/stash_vroom/heresphere.html#trigger_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stash_vroom.heresphere.trigger_event" title="Link to this definition">¶</a></dt>
+<dd><p>Trigger an event on the global app.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> – Name of the event to trigger</p></li>
+<li><p><strong>scene</strong> – Scene object to pass to handlers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of results from all handlers</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">stash_vroom.heresphere module</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#stash_vroom.heresphere.HereSphereApp"><code class="docutils literal notranslate"><span class="pre">HereSphereApp</span></code></a><ul>
+<li><a class="reference internal" href="#stash_vroom.heresphere.HereSphereApp.on_event"><code class="docutils literal notranslate"><span class="pre">HereSphereApp.on_event()</span></code></a></li>
+<li><a class="reference internal" href="#stash_vroom.heresphere.HereSphereApp.trigger_event"><code class="docutils literal notranslate"><span class="pre">HereSphereApp.trigger_event()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stash_vroom.heresphere.Scene"><code class="docutils literal notranslate"><span class="pre">Scene</span></code></a></li>
+<li><a class="reference internal" href="#stash_vroom.heresphere.on_event"><code class="docutils literal notranslate"><span class="pre">on_event()</span></code></a></li>
+<li><a class="reference internal" href="#stash_vroom.heresphere.trigger_event"><code class="docutils literal notranslate"><span class="pre">trigger_event()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="stash_vroom.html"
+                          title="previous chapter">stash_vroom package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="stash_vroom.jav.html"
+                          title="next chapter">stash_vroom.jav module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/stash_vroom.heresphere.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.jav.html" title="stash_vroom.jav module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stash_vroom.html" title="stash_vroom package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Stash VRoom  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="stash_vroom.html" >stash_vroom package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">stash_vroom.heresphere module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Zyquo Onrel.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

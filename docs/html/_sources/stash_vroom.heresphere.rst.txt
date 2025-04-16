@@ -1,0 +1,7 @@
+stash\_vroom.heresphere module
+==============================
+
+.. automodule:: stash_vroom.heresphere
+   :members:
+   :show-inheritance:
+   :undoc-members:
