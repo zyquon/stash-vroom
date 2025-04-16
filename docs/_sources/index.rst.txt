@@ -8,8 +8,6 @@ Stash-VRoom!
 
 Stash-VRoom is a Stash plugin that provides adds HereSphere support for browsing and viewing VR videos.
 
-The `User Guide <user_guide.html>`_ explains how to run and use Stash-VRoom.
-
 The `Design <design.html>`_ document explains the design, tradeoffs, and internal thinking behind Stash-VRoom.
 
 The `Developer Cookbook <cookbook.html>`_ shows specific examples of how to use Stash-VRoom in your own project.
