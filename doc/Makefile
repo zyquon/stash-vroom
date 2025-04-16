@@ -17,6 +17,9 @@ help:
 clean: Makefile
 	rm -rvf $(BUILDDIR) stash_vroom.rst stash_vroom.*.rst
 
+nodoc: Makefile
+	rm -rvf $(BUILDDIR) && git checkout HEAD $(BUILDDIR)
+
 stash_vroom.rst: Makefile
 	# sphinx-apidoc --force --no-toc --module-first --output-dir $(SOURCEDIR)/ ../stash_vroom
 	sphinx-apidoc --force --no-toc --module-first --separate --output-dir $(SOURCEDIR)/ ../stash_vroom
