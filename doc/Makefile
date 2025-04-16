@@ -6,7 +6,8 @@
 SPHINXOPTS    ?= --verbose
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = ../docs
+BUILDDIR      = _build
+GH_DOC_DIR    = ../Documentation
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -14,11 +15,11 @@ help:
 
 .PHONY: help Makefile
 
-clean: Makefile
-	rm -rvf $(BUILDDIR) stash_vroom.rst stash_vroom.*.rst
-
 nodoc: Makefile
-	rm -rvf $(BUILDDIR) && git checkout HEAD $(BUILDDIR)
+	rm -rvf $(GH_DOC_DIR) && git checkout HEAD $(GH_DOC_DIR)
+
+clean: Makefile nodoc
+	rm -rvf $(BUILDDIR) stash_vroom.rst stash_vroom.*.rst
 
 stash_vroom.rst: Makefile
 	# sphinx-apidoc --force --no-toc --module-first --output-dir $(SOURCEDIR)/ ../stash_vroom
@@ -26,7 +27,11 @@ stash_vroom.rst: Makefile
 
 html: Makefile stash_vroom.rst
 	$(SPHINXBUILD) -M "html" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	touch "$(BUILDDIR)/.nojekyll"
+
+doc: html
+	rm -rf $(GH_DOC_DIR)
+	mv -vi $(BUILDDIR)/html $(GH_DOC_DIR)
+	touch "$(GH_DOC_DIR)/.nojekyll"
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
