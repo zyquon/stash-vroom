@@ -43,6 +43,10 @@ A more interesting example is handling common events from the HereSphere user.
     @app.on('favorite')
     def on_favorite(scene_id):
         print(f"Marking scene as favorite: {scene_id}")
+
+    @app.on('unfavorite')
+    def on_unfavorite(scene_id):
+        print(f"Marking scene as not favorite: {scene_id}")
     
     @app.on('delete')
     def on_delete(scene_id):
