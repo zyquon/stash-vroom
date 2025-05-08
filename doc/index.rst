@@ -6,11 +6,14 @@
 Stash-VRoom!
 ============
 
-Stash-VRoom is a Stash plugin that provides adds HereSphere support for browsing and viewing VR videos.
+Stash-VRoom is a Stash plugin that lets you browse your Stash VR content from HereSphere.
 
-The `Design <design.html>`_ document explains the design, tradeoffs, and internal thinking behind Stash-VRoom.
+The `Design <design.html>`_ document briefly explains the broad philosophy and goals of Stash-VRoom.
 
-The `Developer Cookbook <cookbook.html>`_ shows specific examples of how to use Stash-VRoom in your own project.
+The `User Guide <design.html>`_ explains how to view your Stash-organized VR content using HereSphere.
+
+The `Developer Cookbook <cookbook.html>`_ shows how to use `stash_vroom` to build your own HereSphere
+service using Stash content, but with custom logic and different behavior.
 
 .. toctree::
    :maxdepth: 2

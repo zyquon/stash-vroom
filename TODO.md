@@ -1,11 +1,13 @@
 Bugs
 ====
 
-Foo
+1. Document the circumstances and procedure to delete the HS media library and reload
+1. Missing events: new tag, unknown tag, star rating, seen, play, pause, doubleclick, fav, unfav
 
 Features
 ========
 
+1. The ffmpeg wrapper should connect in to Stash and update its parameters for screenshot or preview of SBS or TB VR
 1. Serving images to HS by maybe streaming or creating a temporary video file with ffmpeg
 1. If it is truly easy, the plugin may need to display a link for them to click or paste to HereSphere or something, instead of asking the user to figure out their hostname and URL. Maybe it's a page with
     1. Instructions about what's about to happen

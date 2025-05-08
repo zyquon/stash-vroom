@@ -9,14 +9,13 @@ This section explains the design, tradeoffs, and internal thinking behind the pr
 Philosophy
 ----------
 
-- VR on Stash should be very easy
-- HereSphere on Stash should be as convenient and intuitive as possible.
-- VRoom should be useful for developers to build advanced HereSphere functionality.
+- VR on Stash should be easy, fun, and rewarding
+- Browsing VR Stash content with HereSphere should be easy and intuitive
+- Help everyday users browse their VR Stash, and also help developers build similar technology
 
-To make VR on Stash easy, VRoom will be a Stash plugin, easy to install. It aspires to be
-a reliable, mature tool providing all the services needed to manage VR Stash content. (If it is truly
-easy, the plugin may need to display a link to paste to HereSphere or something, instead of asking
-the user to figure out their hostname and URL.)
+To make VR on Stash easy, **VRoom will be a Stash plugin**: easy to install, easy to run, easy to configure.
+VRoom aspires to be a reliable, mature tool providing all the services needed to
+manage VR Stash content.
 
 To make the HereSphere experience convenient and intuitive, VRoom has no UI and minimal configuration.
 VRoom should be transparent. HereSphere should just be a nice new way to browse our Stash we know and love.
@@ -28,21 +27,17 @@ To change what see in HereSphere, change your data in Stash. VRoom makes HereSph
 - Scene **Star Rating** appears in HereSphere. If you make VRoom read-write, click a star rating in HereSphere to update the star rating in Stash.
 
 To be useful for developers, VRoom has two parts:
-1. A ready-to-go Stash plugin that does all of the above.
-2. A developer library for easy building of a different tool servicing HereSphere using Stash. ``stash_vroom`` connects it all and
-   gives you convenient helpers and event triggers. But you completely control what to send to HereSphere and how to query Stash.
-
-Tradeoffs
----------
-
-- Performance vs. readability.
-- Flexibility vs. simplicity.
+1. A plug-and-play Stash plugin that does all of the above.
+2. A lower-level Python library to support HereSphere's native video client, using your own logic
+   and content with a few lines of code (presumably Stash as a back-end). Rather than coding web handlers,
+   you decorate your functions to trigger during HereSphere usage: `on_play`, `on_pause`, `on_stars(3)`, `on_delete`, etc.
+   You control the content to send to HereSphere using `your own behavior and content <cookbook.html>`_.
 
 Internals
 ---------
 
 - Explanation of core modules like `slr.py`.
-- How regex patterns are used for filename parsing.
+- Foo bar
 
 .. Here is an example of the `say_hello` function:
 
