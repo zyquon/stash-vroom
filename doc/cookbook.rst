@@ -14,39 +14,41 @@ To do
 Example 2: Handling HereSphere Events
 -------------------------------------
 
-This example shows how to use the HereSphere API to handle UI events:
+Writing your own service to allow browsing and managing Stash from HereSphere,
+with your custom logic, is easy and will feel familiar to users of Flask.
+Inside HereSphere, it will feel the same as read-only mode. But you can write
+handlers for interesting events like the user playing a scene, setting a star rating,
+favoriting a scene, etc.
 
 .. code-block:: python
 
-    from stash_vroom.heresphere import on_event, trigger_event, Scene
+    from stash_vroom.heresphere import HereSphere
+
+    app = HereSphere('My First Service')
+    app.run() # Output: "Listening on http://0.0.0.0:5000"
+
+A more interesting example is handling common events from the HereSphere user.
+
+.. code-block:: python
+
+    from stash_vroom.heresphere import HereSphere
+
+    app = HereSphere('My Second Service')
     
     # Define event handlers
-    @on_event('play')
-    def on_play(scene):
-        print(f"Playing scene: {scene.title}")
-        return True
+    @app.on_hs('play')
+    def on_play(scene_id):
+        print(f"User is playing scene: {scene_id}")
     
-    @on_event('favorite')
-    def on_favorite(scene):
-        print(f"Marking scene as favorite: {scene.title}")
-        scene.metadata['favorite'] = True
-        return scene.metadata
+    @app.on_hs('favorite')
+    def on_favorite(scene_id):
+        print(f"Marking scene as favorite: {scene_id}")
     
-    @on_event('delete')
-    def on_delete(scene):
-        print(f"Deleting scene: {scene.title}")
-        # In a real implementation, you would delete the file
-        return True
-    
-    # Test the handlers
-    test_scene = Scene(
-        id="123",
-        title="Test Scene",
-        path="/path/to/test.mp4",
-        metadata={"studio": "Test Studio"}
-    )
-    
-    # Trigger events
-    trigger_event('play', test_scene)
-    trigger_event('favorite', test_scene)
-    trigger_event('delete', test_scene)
+    @app.on_hs('delete')
+    def on_delete(scene_id):
+        # Notice, this function performs no delete.
+        # Although HereSphere will remove the scene in its UI, the file remains.
+        # Stash data is unchanged. When HereSphere reloads, the scene will reappear.
+        print(f"User wishes to delete scene: {scene_id}")
+
+    app.run() # Output: "User is playing scene: 1234", etc.
