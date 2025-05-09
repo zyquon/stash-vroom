@@ -7,7 +7,7 @@ SPHINXOPTS    ?= --verbose
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
-GH_DOC_DIR    = ../Documentation
+GH_DOC_DIR    = ../docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
