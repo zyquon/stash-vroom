@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Sphinx | Build",
+            "command": "make clean html",
+            "options": {
+                "cwd": "${workspaceFolder}/doc"
+            },
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Sphinx | Clean",
+            "command": "make",
+            "args": [
+                "clean",
+                "nodoc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/doc"
+            },
+            "type": "shell",
+            "group": "build"
+        }
+    ]
+}
