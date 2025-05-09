@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "Sphinx | Build",
-            "command": "make clean html",
+            "command": "make clean doc",
             "options": {
                 "cwd": "${workspaceFolder}/doc"
             },
