@@ -22,7 +22,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv')):
+def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv', 'mov')):
     """
     Return a regular expression pattern to match file extensions.
 
