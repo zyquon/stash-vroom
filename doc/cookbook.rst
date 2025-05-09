@@ -36,15 +36,15 @@ A more interesting example is handling common events from the HereSphere user.
     app = HereSphere('My Second Service')
     
     # Define event handlers
-    @app.on_hs('play')
+    @app.on('play')
     def on_play(scene_id):
         print(f"User is playing scene: {scene_id}")
     
-    @app.on_hs('favorite')
+    @app.on('favorite')
     def on_favorite(scene_id):
         print(f"Marking scene as favorite: {scene_id}")
     
-    @app.on_hs('delete')
+    @app.on('delete')
     def on_delete(scene_id):
         # Notice, this function performs no delete.
         # Although HereSphere will remove the scene in its UI, the file remains.

@@ -19,9 +19,9 @@ I do not see any plugins that run long-term web services. The theory might be th
 * The Stash UI needs a link to the HereSphere service to get the user started. Browse to Stash in HS, then click that link.
 
 TODO explain all the current logic out of the box: play/pause, favorite, double click, etc.
+
 Explain "views"
 Explain tags vs. markers
-
 
 Caveats
 -------
