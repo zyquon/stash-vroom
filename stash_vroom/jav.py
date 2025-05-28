@@ -49,6 +49,7 @@ def get_jav_info(filepath):
 
     part = mtch[5] if mtch[5] else ''
     part = re.sub(r'^part', '', part, flags=re.IGNORECASE)
+    part = re.sub(r'^(\d+)\D+$', r'\1', part)  # Remove any non-digit characters at the end, which the regex unfortunately captures
     part = part.upper()
 
     # The release ID may have leading zeroes only to left-pad a 1 or 2 digit number. Otherwise, trim.
@@ -128,8 +129,8 @@ def match_jav_filename(filename):
     #fname = re.sub(r'abc122', '', fname)
 
     #log.debug(f'-- fname = {repr(fname)}')
-    connector_re = r'[-_\s\.]*'
-    part_re = f'({connector_re})' + r'(\d{1,2}\b|[a-z]\b|part\d+)'
+    connector_re = r'[-_\s\.0]*?'
+    part_re = f'({connector_re}|vrv18khia)' + r'(\d\d?(?:\b|_)|[a-z]\b|part\d+)'
     jav_re = (''
         + r'\b'
         #+ r'(2?[a-z]{3,9}(?:6|6D|8|9D)?)'

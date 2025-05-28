@@ -19,7 +19,10 @@ def test_get_jav_info():
         ('TMAVR-200-1.SLR_TMAVR_Filename Part 1_2160p_47574_LR_180.mp4', ('TMAVR', '-', '200', '1')),
         ('CAFR-219.SLR_CasanovA_Example Title_1920p_1234_LR_180.mp4'   , ('CAFR' , '-', '219', '' )),
 
-        ('wvr1001A.VR.mp4'                             , ('WVR1'     , ''  , '001'   , 'A'   )),
+        ('sivr00404vrv18khia1.mp4'                     , ('SIVR'     , ''  , '404'   , '1'   )),
+        ('sivr00410vrv18khia2.mp4'                     , ('SIVR'     , ''  , '410'   , '2'   )),
+        ('sivr00386_1_8k.mp4'                          , ('SIVR'     , ''  , '386'   , '1'   )),
+        ('sivr00378-3_8K.mp4'                          , ('SIVR'     , ''  , '378'   , '3'   )),
         ('WVR-1001-2.mp4'                              , ('WVR1'     , ''  , '001'   , '2'   )),
         ('WVR-100001.avi'                              , ('WVR1'     , ''  , '001'   , ''    )),
         ('WVR-1-001.avi'                               , ('WVR1'     , '-' , '001'   , ''    )),
