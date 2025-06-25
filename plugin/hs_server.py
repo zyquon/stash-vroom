@@ -34,6 +34,20 @@ log = None
 
 app = HereSphere('Stash-VRoom')
 
+# @app.saved_scene_filters.events.inserted.connect
+# def on_saved_filter_inserted(i, saved_filter):
+#     # log.debug(f'Saved filter inserted at {i}: {saved_filter!r}')
+#     pass
+
+# @app.saved_scene_filters.events.removed.connect
+# def on_saved_filter_removed(i, saved_filter):
+#     # log.debug(f'Saved filter removed at {i}: {saved_filter!r}')
+#     pass
+
+@app.new_scene_filter.connect
+def on_new_scene_filter(name, find_filter, scene_filter):
+    log.debug(f'Saved filter named {name!r}: {find_filter!r} and {scene_filter!r}')
+
 # @app.on_eoubleclick()
 # def on_doubleclick(scene_id, start_ts):
 #     log.info(f"Double-click scene at {start_ts}: {scene_id}")

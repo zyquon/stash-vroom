@@ -18,6 +18,7 @@ This module has common and frequently-used functions, which have no big dependen
 
 import os
 import re
+import json
 import logging
 
 log = logging.getLogger(__name__)
@@ -51,3 +52,83 @@ def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv', 'mov')):
 
 def get_font_dirpath():
     return f'{SCRIPT_DIR}/fonts'
+
+def saved_filter_to_find_filter(saved_filter):
+    find_filter = saved_filter['find_filter']
+
+    # Always query for the entire data set without paging.
+    find_filter['page'] = 1
+    find_filter['per_page'] = -1
+    return json.loads(json.dumps(find_filter)) # Make sure no autogen objects persist.
+
+def saved_filter_to_scene_filter(saved_filter):
+    object_filter = saved_filter['object_filter']
+    fix_object_filter(object_filter)
+    return json.loads(json.dumps(object_filter)) # Make sure no autogen objects persist.
+
+def fix_object_filter(flt):
+    #log.debug(f'Fix filter:\n' + json.dumps(flt, indent=2))
+    tag_labels = ['tags', 'performer_tags']
+    for tag_label in tag_labels:
+        if tag_label in flt:
+            original = flt[tag_label]
+
+            flt[tag_label] = {}
+            flt[tag_label]['depth'] = original['value']['depth']
+            flt[tag_label]['modifier'] = original['modifier']
+
+            if 'items' in original['value']:
+                flt[tag_label]['value'] = [ X['id'] for X in original['value']['items'] ]
+            if 'excluded' in original['value']:
+                flt[tag_label]['excludes'] = [ X['id'] for X in original['value']['excluded'] ]
+
+    if 'studios' in flt:
+        modifier = flt['studios'].get('modifier')
+        if modifier != 'INCLUDES':
+            raise NotImplementedError(f'Modifier must be INCLUDES for now')
+
+        val = flt['studios'].get('value')
+        if not val:
+            raise ValueError(f'Filter .studios must have .value property')
+
+        depth = val.get('depth')
+        if depth != 0:
+            raise ValueError(f'Filter .studios depth must be 0')
+
+        excludes = val.get('excluded')
+        if not isinstance(excludes, list) or len(excludes) != 0:
+            raise ValueError(f'Filter for .studios excludes must be empty')
+
+        studio_ids = [ X['id'] for X in val['items'] ]
+
+        flt['studios'] = {
+            'depth': depth,
+            'modifier': modifier,
+            'excludes': excludes,
+            'value': studio_ids,
+        }
+
+    if 'is_missing' in flt:
+        if isinstance(flt['is_missing'], dict):
+            if flt['is_missing']['modifier'] != 'EQUALS':
+                raise Exception(f'Unknown is_missing: {flt}')
+            flt['is_missing'] = flt['is_missing']['value']
+
+    if 'has_markers' in flt:
+        if isinstance(flt['has_markers'], dict):
+            if flt['has_markers']['modifier'] != 'EQUALS':
+                raise Exception(f'Unknown has_markers: {flt}')
+            flt['has_markers'] = flt['has_markers']['value']
+
+    if 'performer_favorite' in flt:
+        if flt['performer_favorite']['modifier'] != 'EQUALS':
+            raise Exception(f'Unknown performer favorite value: {repr(flt)}')
+        flt['performer_favorite'] = flt['performer_favorite']['value'] in ('true', True)
+
+    keys = ['file_count', 'performer_count', 'rating100', 'o_counter']
+    for key in keys:
+        if key in flt:
+            # Convert "value":{"value":N} -> "value":N.
+            value = flt[key]['value']
+            if isinstance(value, dict) and 'value' in value:
+                flt[key]['value'] = value['value']

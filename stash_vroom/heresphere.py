@@ -20,8 +20,11 @@ and easily handle user events and interactions without writing an entire web ser
 import io
 import re
 import copy as Copy
+import json
 import math
+import inspect
 import logging
+import psygnal
 import threading
 import PIL.Image
 import PIL.ImageDraw
@@ -29,12 +32,20 @@ import PIL.ImageFont
 
 from typing import Dict, List, Callable, Any, Optional
 from flask import ( Flask, g, request, Response, jsonify, make_response )
+import psygnal.containers
 
 from . import util
 from . import stash
-from . import changes
+# from . import changes
 
 log = logging.getLogger(__name__)
+
+new_scene_filter_signature = inspect.Signature([
+    inspect.Parameter("name", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
+    inspect.Parameter("search_filter", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
+    inspect.Parameter("scene_filter", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
+    inspect.Parameter("filter_id", inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None, annotation=Optional[str]),
+])
 
 class HereSphere(Flask):
     """
@@ -43,6 +54,9 @@ class HereSphere(Flask):
     Similar to Flask's Flask class, this manages event handlers and provides
     decorators for registering them.
     """
+
+    saved_scene_filters = psygnal.containers.EventedList()
+    new_scene_filter = psygnal.Signal(new_scene_filter_signature, check_types_on_connect=True)
     
     def __init__(self, name='Stash VRoom HereSphere Service', **kwargs):
         """
@@ -67,12 +81,8 @@ class HereSphere(Flask):
         self._vroom_handlers = {}
         self._vroom_handlers['_cheats'] = {} # directions tuple -> list of handlers
 
-        self._vroom_views = []
-        # self._vroom_changes = changes.SceneChanges(stash_api=self._vroom_stash)
-        # self._vroom_changes.on('insert_view', self._insert_view)
-        # self._vroom_changes.on('delete_view', self._delete_view)
-        # self._vroom_changes.on('insert_scene', self._insert_scene)
-        # self._vroom_changes.on('delete_scene', self._delete_scene)
+        # self.saved_scene_filters = psygnal.containers.EventedList()
+
         self._register_routes()
         log.info(f"Initialized VRoom app: {name}")
 
@@ -82,6 +92,55 @@ class HereSphere(Flask):
     def init_stash(self, stash_url, stash_headers=None, validate=True):
         # Initialize the Stash connection. This runs just before the Flask app runs.
         self._vroom_stash = stash.init(stash_url=stash_url, stash_headers=stash_headers, validate=validate)
+        self.load_saved_scene_filters()
+
+    def load_saved_scene_filters(self):
+        """
+        Load scene filters from the Stash API and populate the scene_filters evented list.
+        """
+        log.debug("Load scene filters from Stash API")
+        res = self._vroom_stash.saved_filters(mode='SCENES')
+        res = res.model_dump()
+
+        # Add any saved filters having the proper ("AA" or "VR") prefix to the scene_filters list, ensuring to maintain ascending order of filters by int() of its ['id'] field.
+        for filter in res['findSavedFilters']:
+            filter_name = filter['name']
+            match = re.search(r'^(AA|VR|XP)\s*\|\s*(.+)$', filter_name)
+            if not match:
+                log.debug(f'Skip filter with inactive name: {filter_name!r}')
+                continue
+
+            filter_name = match.group(2).strip()
+            filter_id = int(filter['id'])
+            log.debug(f'Filter {filter_id}: {filter_name!r}')
+
+            # Now walk the existing filters in order until this ID is lesser than it (insert before) or the list exhausts (append to end).
+            filter_i = None
+            for i, existing_filter in enumerate(self.saved_scene_filters):
+                existing_filter_id = int(existing_filter['id'])
+                if filter_id == existing_filter_id:
+                    log.debug(f'Skip existing filter: {filter_id} ({filter_name!r})')
+                    break
+
+                if filter_id > existing_filter_id:
+                    # log.debug(f'Filter {filter_id} too large to insert at index {i} ({existing_filter_id})')
+                    continue
+
+                log.debug(f'Insert filter {filter_id} at {i} before {existing_filter_id}')
+                filter_i = i
+                self.saved_scene_filters.insert(i, filter)
+                break
+        
+            if filter_i is None:
+                # If we did not find a place to insert, append to the end.
+                log.debug(f'Append filter {filter_id} ({filter_name!r}) to end of list')
+                self.saved_scene_filters.append(filter)
+                filter_i = len(self.saved_scene_filters) - 1
+
+            # Also emit the more convenient search objects.
+            find_filter = util.saved_filter_to_find_filter(filter)
+            scene_filter = util.saved_filter_to_scene_filter(filter)
+            self.new_scene_filter.emit(filter_name, find_filter, scene_filter, filter['id'])
     
     def _cache_set(self, key: str, value: Any):
         with self._vroom_lock:
@@ -239,57 +298,57 @@ class HereSphere(Flask):
             "results": results
         })
     
-    def on_doubleclick(self):
-        return self._on('doubleclick')
+    # def on_doubleclick(self):
+    #     return self._on('doubleclick')
     
-    def cheatcode(self, name, *args):
-        """
-        Register a cheat code.
+    # def cheatcode(self, name, *args):
+    #     """
+    #     Register a cheat code.
         
-        :param name: Name of the cheat code
-        :param args: D-Pad directions: "up", "down", "left", "right"
-        :return: Decorator function
-        """
+    #     :param name: Name of the cheat code
+    #     :param args: D-Pad directions: "up", "down", "left", "right"
+    #     :return: Decorator function
+    #     """
 
-        if not name or not isinstance(name, str):
-            raise ValueError(f"Invalid cheat code name: {repr(name)}")
+    #     if not name or not isinstance(name, str):
+    #         raise ValueError(f"Invalid cheat code name: {repr(name)}")
 
-        directions = []
-        for arg in args:
-            arg = arg.lower()
-            if arg not in ['up', 'down', 'left', 'right']:
-                raise ValueError(f"Invalid direction: {arg}")
-            directions.append(arg)
+    #     directions = []
+    #     for arg in args:
+    #         arg = arg.lower()
+    #         if arg not in ['up', 'down', 'left', 'right']:
+    #             raise ValueError(f"Invalid direction: {arg}")
+    #         directions.append(arg)
         
-        cheat_id = tuple(directions)
-        if cheat_id in self._vroom_handlers['_cheats']:
-            existing_cheat_name = self._vroom_handlers['_cheats'][cheat_id]
-            raise ValueError(f"Cheat code {cheat_id} already registered as {existing_cheat_name}")
+    #     cheat_id = tuple(directions)
+    #     if cheat_id in self._vroom_handlers['_cheats']:
+    #         existing_cheat_name = self._vroom_handlers['_cheats'][cheat_id]
+    #         raise ValueError(f"Cheat code {cheat_id} already registered as {existing_cheat_name}")
 
-        def decorator(func: Callable[[str], Any]):
-            self._vroom_handlers['_cheats'][cheat_id] = func
-            log.debug(f"Registered cheat code {name}: {func.__name__}")
-            return func
-        return decorator
+    #     def decorator(func: Callable[[str], Any]):
+    #         self._vroom_handlers['_cheats'][cheat_id] = func
+    #         log.debug(f"Registered cheat code {name}: {func.__name__}")
+    #         return func
+    #     return decorator
 
-    def _on(self, event_name: str):
-        """
-        Decorator for registering event handlers.
+    # def _on(self, event_name: str):
+    #     """
+    #     Decorator for registering event handlers.
         
-        :param event_name: Name of the event to handle (e.g., "delete", "favorite", "play")
-        :return: Decorator function
-        """
+    #     :param event_name: Name of the event to handle (e.g., "delete", "favorite", "play")
+    #     :return: Decorator function
+    #     """
 
-        if not event_name or event_name[0] == '_':
-            raise ValueError(f"Invalid event name: {event_name}")
+    #     if not event_name or event_name[0] == '_':
+    #         raise ValueError(f"Invalid event name: {event_name}")
 
-        def decorator(func: Callable[[str], Any]):
-            if event_name not in self._vroom_handlers:
-                self._vroom_handlers[event_name] = []
-            self._vroom_handlers[event_name].append(func)
-            log.debug(f"Registered handler for event {event_name}: {func.__name__}")
-            return func
-        return decorator
+    #     def decorator(func: Callable[[str], Any]):
+    #         if event_name not in self._vroom_handlers:
+    #             self._vroom_handlers[event_name] = []
+    #         self._vroom_handlers[event_name].append(func)
+    #         log.debug(f"Registered handler for event {event_name}: {func.__name__}")
+    #         return func
+    #     return decorator
 
     def _get_hs_url(self, path):
         path = re.sub(r'^/', '', path)
