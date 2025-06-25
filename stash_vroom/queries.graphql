@@ -7,17 +7,34 @@ query Version {
 }
 
 query Configuration {
-	configuration {
-		general {
+  configuration {
+    general {
       ffmpegPath
       ffprobePath
-			stashBoxes {
-				name
-				endpoint
-				api_key
-			}
-		}
+      stashBoxes {
+        name
+        endpoint
+        api_key
+      }
+    }
     plugins
+  }
+}
+
+query SavedFilters($mode: FilterMode!) {
+  findSavedFilters(mode: $mode) {
+    ...SavedFilterData
+  }
+}
+
+query Scenes($filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+  findScenes(filter: $filter, scene_filter: $scene_filter) {
+    count
+    duration
+    filesize
+    scenes {
+      ...Scene
+    }
   }
 }
 
@@ -81,6 +98,117 @@ fragment Img on Image {
       fingerprints {
         type
         value
+      }
+    }
+  }
+}
+
+fragment SavedFilterData on SavedFilter {
+  id
+  mode
+  name
+  find_filter {
+    q
+    page
+    per_page
+    sort
+    direction
+  }
+  object_filter
+  ui_options
+}
+
+fragment Scene on Scene {
+  id
+  urls
+  title
+  details
+  rating100
+  date
+  created_at
+  o_counter
+  play_count
+  studio {
+    name
+    tags {
+      id
+      name
+    }
+    parent_studio {
+      name
+      parent_studio {
+        name
+        parent_studio {
+          name
+        }
+      }
+    }
+  }
+  paths {
+    stream
+    screenshot
+    preview
+  }
+  files {
+    format
+    basename
+    size
+    width
+    height
+    duration
+    fingerprints {
+      type
+      value
+    }
+  }
+  performers {
+    id
+    name
+    gender
+    country
+    favorite
+    ethnicity
+    fake_tits
+    tags {
+      name
+    }
+  }
+  scene_markers {
+    id
+    seconds
+    primary_tag {
+      name
+    }
+    tags {
+      id
+      name
+      parents {
+        id
+        name
+        parents {
+          id
+          name
+          parents {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+  tags {
+    id
+    name
+    parents {
+      id
+      name
+      parents {
+        id
+        name
+        parents {
+          id
+          name
+        }
       }
     }
   }
