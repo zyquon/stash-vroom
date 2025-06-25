@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Entry point for the Stash plugin.
+# Daemon for the Stash plugin.
 
+import os
 import sys
 import json
 import logging
 from logging.handlers import RotatingFileHandler
-from venv import EnvBuilder
 
 import stash_log
 
-# Setup logging
 log_file = '/tmp/stash_plugin.log'
 handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
@@ -30,22 +29,19 @@ log = logging.getLogger('stash-plugin')
 log.setLevel(logging.DEBUG)
 log.addHandler(handler)
 
-log.info('Stash plugin: continue')
-if len(sys.argv) < 2:
-    log.error('No JSON input provided. Exiting.')
-    stash_log.error('No JSON input provided. Exiting.')
+log.info('Stash plugin: start daemon')
+json_input_str = os.environ.get('STASH_INPUT')
+if not json_input_str:
+    log.error('Exit: STASH_INPUT environment variable not set')
+    stash_log.error('Exit: STASH_INPUT environment variable not set')
     sys.exit(1)
 
-try:
-    json_input = json.loads(sys.argv[1])
-except (json.JSONDecodeError, TypeError) as e:
-    log.error(f'Failed to parse JSON input: {e}')
-    stash_log.error(f'Failed to parse JSON input: {e}')
-    sys.exit(1)
-
+json_input = json.loads(json_input_str)
 log.info(f'Yay, got input:\n{json.dumps(json_input, indent=2)}')
 
 # Now just sleep for 30 seconds.
 import time
-log.info('Sleeping for 30 seconds...')
-time.sleep(30)
+delay = 60 * 0.5
+log.info(f'Sleep: {delay} seconds')
+time.sleep(delay)
+log.info(f'Done sleeping: {delay} seconds')

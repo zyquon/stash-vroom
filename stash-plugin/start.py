@@ -13,19 +13,16 @@
 # limitations under the License.
 
 # Entry point for the Stash plugin.
-# This just preprares the venv with the dependencies and the execs that for the real work.
+# This just preprares the venv and the execs that for the real work.
 
 import os
 import sys
 import venv
 import json
-import logging
-import subprocess
-import logging.handlers
 
 import stash_log as log
 
-log.info('Stash-VRoom: Start')
+log.info('Start')
 json_input_str = sys.stdin.read()
 json_input = json.loads(json_input_str)
 
@@ -39,5 +36,6 @@ if not os.path.exists(venv_dir):
     builder = venv.EnvBuilder(with_pip=True)
     builder.create(venv_dir)
 
-log.info(f'Execute: {python_executable} {pip_py}')
-os.execv(python_executable, [python_executable, pip_py, json_input_str])
+log.info(f'Execute step 2: Pip')
+os.environ['STASH_INPUT'] = json_input_str
+os.execv(python_executable, [python_executable, pip_py])

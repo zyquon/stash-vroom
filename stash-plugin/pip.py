@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # Second execution step for the Stash plugin.
-# This is running in the correct Python venv so its job is to confirm as fast as possible that
-# all dependencies are installed and then to execute the continue.py script.
+# This is running in the correct Python venv. It confirm as fast as possible that
+# all dependencies are installed and then to executes daemon.py.
 
 import os
 import sys
@@ -23,26 +23,45 @@ import subprocess
 
 import stash_log as log
 
-log.info('Stash-VRoom: Pip')
-if len(sys.argv) < 2:
-    log.error('Exit: No JSON input provided')
+log.info('Stash-VRoom step 2: Pip')
+json_input_str = os.environ.get('STASH_INPUT')
+if not json_input_str:
+    log.error('Exit: STASH_INPUT environment variable not set')
     sys.exit(1)
 
-json_input_str = sys.argv[1]
 json_input = json.loads(json_input_str)
-
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
-continue_py = f'{plugin_dir}/stash-plugin/continue.py'
+daemon_py = f'{plugin_dir}/stash-plugin/daemon.py'
 
-# TODO: Possibly this could specifically check each package required but I'm not sure
-# if that's practically faster than a `pip install` where everything is already installed.
-log.info(f'Install dependencies: {venv_dir}')
-try:
-    subprocess.check_call([f'{venv_dir}/bin/pip', 'install', '-e', plugin_dir])
-except subprocess.CalledProcessError as e:
-    log.error(f'Failed to install dependencies: {e}')
-    sys.exit(1)
+if os.environ.get(f'SKIP_VROOM_INSTALL'):
+    log.debug(f'Skip pip install')
+else:
+    # log.info(f'Install dependencies: {venv_dir}')
+    try:
+        result = subprocess.run(
+            [f'{venv_dir}/bin/pip', 'install', '-e', plugin_dir],
+            capture_output=True,
+            text=True
+        )
+        result.check_returncode()  # Raise CalledProcessError if return code is non-zero
+    except subprocess.CalledProcessError as e:
+        log.error(f'Failed to install dependencies: {e}')
+        sys.exit(1)
+    finally:
+        # log.info(f'Pip install stdout: {result.stdout!r}')
+        if result and result.stderr:
+            log.error(f'Pip install error message: {result.stderr}')
 
-log.info(f'Execute: {continue_py}')
-os.execv(f'{venv_dir}/bin/python', [f'{venv_dir}/bin/python', continue_py, json_input_str])
+log.info(f'Start HereSphere server in the background')
+background_process = subprocess.Popen(
+    [f'{venv_dir}/bin/python', daemon_py],
+    stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
+    stderr=subprocess.DEVNULL,  # Redirect stderr to avoid clutter
+    # start_new_session=True,     # Detach the process from the parent
+    start_new_session=False,    # Keep the process in the same session
+    env=os.environ              # Pass the updated environment
+)
+
+# log.info('Background process started, exiting parent process.')
+sys.exit(0)
