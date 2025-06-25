@@ -51,6 +51,7 @@ class Stash(BaseClient):
                     api_key
                   }
                 }
+                plugins
               }
             }
             """
