@@ -51,7 +51,6 @@ def main():
         stash_log.error(f'Fatal error: {e}')
         raise
 
-    stash_log.debug(f'Input JSON: {json_input}')
     plugin_args = json_input['args']
     server_connection = json_input['server_connection']
     plugin_dir = server_connection['PluginDir']
@@ -81,7 +80,6 @@ def main():
                 logger_obj.addHandler(stream_handler)
 
     log.info('Stash plugin: Ready')
-    log.debug(f'Input JSON: {json.dumps(json_input)}')
 
     api_url = util.get_stash_input_url()
     headers = util.get_stash_input_headers()
