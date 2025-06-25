@@ -29,13 +29,13 @@ json_input = json.loads(json_input_str)
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
 python_executable = f'{venv_dir}/bin/python'
-pip_py = f'{plugin_dir}/stash-plugin/pip.py'
+deps_py = f'{plugin_dir}/stash-plugin/deps.py'
 
 if not os.path.exists(venv_dir):
     log.info(f'Create virtual environment: {venv_dir}')
     builder = venv.EnvBuilder(with_pip=True)
     builder.create(venv_dir)
 
-log.info(f'Execute step 2: Pip')
+log.info(f'Execute step 2: Dependencies')
 os.environ['STASH_INPUT'] = json_input_str
-os.execv(python_executable, [python_executable, pip_py])
+os.execv(python_executable, [python_executable, deps_py])
