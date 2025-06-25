@@ -6,16 +6,30 @@ query Version {
   }
 }
 
-query ImagesByIds($ids:[ID!]) {
-  findImages(ids:$ids, filter:{per_page:-1}) {
+query Configuration {
+	configuration {
+		general {
+      ffmpegPath
+      ffprobePath
+			stashBoxes {
+				name
+				endpoint
+				api_key
+			}
+		}
+  }
+}
+
+query ImagesByIds($ids: [ID!]) {
+  findImages(ids: $ids, filter: {per_page: -1}) {
     images {
       ...Img
     }
   }
 }
 
-query ImagesBySearch($q:String!) {
-  findImages(ids:[], filter:{q:$q, per_page:-1}) {
+query ImagesBySearch($q: String!) {
+  findImages(ids: [], filter: {q: $q, per_page: -1}) {
     images {
       ...Img
     }
@@ -23,7 +37,7 @@ query ImagesBySearch($q:String!) {
 }
 
 query ImagesByTagIds($ids: [ID!]) {
-  findImages(image_filter:{tags:{modifier:INCLUDES, value:$ids}}) {
+  findImages(image_filter: {tags: {modifier: INCLUDES, value: $ids}}) {
     images {
       ...Img
     }
@@ -31,7 +45,10 @@ query ImagesByTagIds($ids: [ID!]) {
 }
 
 query TagsByRegex($regex: String!) {
-  findTags(tag_filter:{name: {value:$regex, modifier:MATCHES_REGEX}}, filter:{per_page:-1}) {
+  findTags(
+    tag_filter: {name: {value: $regex, modifier: MATCHES_REGEX}}
+    filter: {per_page: -1}
+  ) {
     tags {
       id
       name
@@ -52,9 +69,9 @@ fragment Img on Image {
     id
     name
   }
-  
   visual_files {
-    __typename ... on ImageFile {
+    __typename
+    ... on ImageFile {
       id
       path
       size
