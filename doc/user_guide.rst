@@ -60,7 +60,7 @@ Advanced Mode
    for a fun, hands-off "tour" of the marker genre across all your scenes.
    (Data in Stash remains unchanged.)
    Marker Surfing makes tagging within HereSphere read-only because the incorrect start and end timestamps
-   will remain temporarily in HereSphere but not return to the Stash data.
+   will remain temporarily in HereSphere but not return to the Stash data. (Cheat codes still work while marker surfing.)
 - **Cheat Codes** are a method for the HereSphere user to input a sequence of thumbstick directions,
    to trigger helpful server-side actions, often to update Stash information about
    scenes, markers, performers, tags, etc. *Cheat Codes* are hacky but very flexible,
