@@ -44,19 +44,18 @@ class HereSphere(Flask):
     decorators for registering them.
     """
     
-    def __init__(self, name='Stash VRoom HereSphere Service', stash_hostname='127.0.0.1', validate=True, **kwargs):
+    def __init__(self, name='Stash VRoom HereSphere Service', **kwargs):
         """
         Initialize a VRoom HereSphere web service.
         
         :param name: Name of the application
         :param stash_hostname: Hostname of the Stash server
-        :param validate: Whether to confirm the Stash API connection by checking version, stashbox connections and ffmpeg path
         :param kwargs: Additional keyword arguments for Flask
         """
         super().__init__(name, **kwargs)
         self._vroom_lock = threading.Lock()
 
-        self._vroom_stash = stash.init(stash_hostname=stash_hostname, validate=validate)
+        self._vroom_stash = None # Will be initialized later with init_stash()
 
         self._vroom_cache = {}
         self._vroom_state = {}
@@ -69,16 +68,20 @@ class HereSphere(Flask):
         self._vroom_handlers['_cheats'] = {} # directions tuple -> list of handlers
 
         self._vroom_views = []
-        self._vroom_changes = changes.SceneChanges(stash_api=self._vroom_stash)
-        self._vroom_changes.on('insert_view', self._insert_view)
-        self._vroom_changes.on('delete_view', self._delete_view)
-        self._vroom_changes.on('insert_scene', self._insert_scene)
-        self._vroom_changes.on('delete_scene', self._delete_scene)
+        # self._vroom_changes = changes.SceneChanges(stash_api=self._vroom_stash)
+        # self._vroom_changes.on('insert_view', self._insert_view)
+        # self._vroom_changes.on('delete_view', self._delete_view)
+        # self._vroom_changes.on('insert_scene', self._insert_scene)
+        # self._vroom_changes.on('delete_scene', self._delete_scene)
         self._register_routes()
         log.info(f"Initialized VRoom app: {name}")
 
-        log.debug(f'Start changes feed')
-        self._vroom_changes.start()
+        # log.debug(f'Start changes feed')
+        # self._vroom_changes.start()
+    
+    def init_stash(self, stash_url, stash_headers=None, validate=True):
+        # Initialize the Stash connection. This runs just before the Flask app runs.
+        self._vroom_stash = stash.init(stash_url=stash_url, stash_headers=stash_headers, validate=validate)
     
     def _cache_set(self, key: str, value: Any):
         with self._vroom_lock:
@@ -302,12 +305,15 @@ class HereSphere(Flask):
         url = url.replace(stash.STASH_HOST, stash.STASH_IP) # Because Meta Quest 3 does not have Bonjour/Rendezvous.
         return url
     
-    def run(self, host='0.0.0.0', **kwargs):
+    def run(self, stash_url, stash_headers, host='0.0.0.0', **kwargs):
         """
         Run the VRoom HereSphere service.
         
+        :param stash_url: URL of the Stash server
+        :param stash_headers: Headers to use for Stash API requests
         :param host: Hostname to bind to
         :param kwargs: Additional options for Flask
         """
         log.debug(f"Run VRoom app on host: {repr(host)}")
+        self.init_stash(stash_url, stash_headers)
         super().run(host=host, **kwargs)

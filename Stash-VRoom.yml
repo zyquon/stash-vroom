@@ -10,10 +10,11 @@ ui:
   - plugin/js/stash-vroom.js
 # TODO
 # can be BOOLEAN, NUMBER, or STRING
-# settings:
-#   vroomTest:
-#     displayName: Stash-VRoom Test
-#     type: STRING
+settings:
+  skipDependencyCheck:
+    displayName: Skip dependency check
+    description: Do not confirm and upgrade all dependencies as needed
+    type: BOOLEAN
 exec:
   - python
   - "{pluginDir}/plugin/start.py"

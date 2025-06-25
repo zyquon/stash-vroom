@@ -17,13 +17,12 @@
 import os
 import sys
 import json
-import stash_log
-
-stash_log.debug(f'Load')
-
 import logging
 import logging.handlers
-# from logging.handlers import RotatingFileHandler
+
+import util
+import stash_log
+stash_log.debug(f'Load')
 
 try:
     from stash_vroom.heresphere import HereSphere
@@ -33,10 +32,6 @@ except ImportError as e:
 
 log = None
 
-# TODO: Just defining this object causes a query to Stash via API.
-# I think that could be postponed to the .run() method. That way you could define everything
-# and then figure out your API key and pass that to the run method. The way it is now, you have to
-# have the API key ready and pass it to the constructor
 app = HereSphere('Stash-VRoom')
 
 # @app.on_eoubleclick()
@@ -50,33 +45,18 @@ app = HereSphere('Stash-VRoom')
 def main():
     stash_log.debug(f'Start')
 
-    json_input_str = os.environ.get('STASH_INPUT')
-    if not json_input_str:
-        stash_log.error(f'Fatal error: STASH_INPUT environment variable not set')
-        raise Exception(f'Fatal error: STASH_INPUT environment variable not set')
-
-    if json_input_str == 'dev':
-        json_input_str = json.dumps({
-            'server_connection': {
-                'Scheme': 'http',
-                'Host': 'localhost',
-                'Port': 9999,
-                'PluginDir': os.path.dirname(os.path.abspath(__file__)),
-            },
-            'args': {},
-        })
-
     try:
-        json_input = json.loads(json_input_str)
-    except json.JSONDecodeError as e:
-        stash_log.error(f'Fatal error: STASH_INPUT environment variable not correct: {json_input_str!r}')
-        raise Exception(f'STASH_INPUT environment variable not correct: {json_input_str!r}') from e
+        json_input = util.get_stash_input()
+    except Exception as e:
+        stash_log.error(f'Fatal error: {e}')
+        raise
 
+    stash_log.debug(f'Input JSON: {json_input}')
     plugin_args = json_input['args']
     server_connection = json_input['server_connection']
     plugin_dir = server_connection['PluginDir']
 
-    log_file = f'{plugin_dir}/log.txt'
+    log_file = f'{plugin_dir}/plugin/log.txt'
     file_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
@@ -85,7 +65,7 @@ def main():
     log = logging.getLogger(__name__ if __name__ != '__main__' else 'VRoom')
     log.setLevel(logging.DEBUG)
     log.addHandler(file_handler)
-    
+
     stream_handler = None
     if sys.stdout.isatty():
         stream_handler = logging.StreamHandler(sys.stdout)
@@ -103,12 +83,8 @@ def main():
     log.info('Stash plugin: Ready')
     log.debug(f'Input JSON: {json.dumps(json_input)}')
 
-    api_url = server_connection['Scheme'] + '://' + server_connection['Host'] + ':' + str(server_connection['Port']) + '/graphql'
-    headers = None
-
-    session_cookie = server_connection.get('SessionCookie')
-    if session_cookie:
-        headers = { 'Cookie': f"{session_cookie['Name']}={session_cookie['Value']}" }
+    api_url = util.get_stash_input_url()
+    headers = util.get_stash_input_headers()
 
     log.info('Run')
     app.run(stash_url=api_url, stash_headers=headers)  # Output: "Listening on http://0.0.0.0:5000"

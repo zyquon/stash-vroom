@@ -21,24 +21,33 @@ import sys
 import json
 import subprocess
 
-import stash_log as log
+import util
+import stash_log
 
-log.info('Stash-VRoom step 2: Dependencies')
-json_input_str = os.environ.get('STASH_INPUT')
-if not json_input_str:
-    log.error('Exit: STASH_INPUT environment variable not set')
-    sys.exit(1)
+stash_log.info('Stash-VRoom step 2: Dependencies')
 
-json_input = json.loads(json_input_str)
+json_input = util.get_stash_input()
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
 server_py = f'{plugin_dir}/plugin/hs_server.py'
 
-if os.environ.get(f'SKIP_VROOM_INSTALL'):
-    # TODO: This could be a setting in the UI.
-    log.debug(f'Skip dependency install')
+# Attempt to ascertain if the plugin setting `skipDependencyCheck` is true. If so, skip. If anything goes wrong, proceed with the dependency check.
+skip_check = False
+try:
+    import stash_vroom.stash
+    stash_url = util.get_stash_input_url()
+    stash_headers = util.get_stash_input_headers()
+    client = stash_vroom.stash.init(stash_url, stash_headers)
+    response = client.configuration().model_dump()
+    my_config = response['configuration']['plugins'].get('Stash-VRoom', {})
+    skip_check = my_config.get('skipDependencyCheck', False)
+except Exception as e:
+    stash_log.warning(f'Proceeding with dependency check due to error: {e}')
+
+if skip_check:
+    stash_log.debug(f'Skip dependency check and upgrade')
 else:
-    # log.info(f'Install dependencies: {venv_dir}')
+    # stash_log.info(f'Install dependencies: {venv_dir}')
     try:
         result = subprocess.run(
             [f'{venv_dir}/bin/pip', 'install', '-e', plugin_dir],
@@ -47,14 +56,14 @@ else:
         )
         result.check_returncode()  # Raise CalledProcessError if return code is non-zero
     except subprocess.CalledProcessError as e:
-        log.error(f'Failed to install dependencies: {e}')
+        stash_log.error(f'Failed to install dependencies: {e}')
         sys.exit(1)
     finally:
-        # log.info(f'Pip install stdout: {result.stdout!r}')
+        # stash_log.info(f'Pip install stdout: {result.stdout!r}')
         if result and result.stderr:
-            log.error(f'Pip install error message: {result.stderr}')
+            stash_log.error(f'Pip install error message: {result.stderr}')
 
-log.info(f'Start HereSphere server in the background')
+stash_log.info(f'Start HereSphere server in the background')
 background_process = subprocess.Popen(
     [f'{venv_dir}/bin/python', server_py],
     # stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
@@ -66,5 +75,5 @@ background_process = subprocess.Popen(
     env=os.environ,             # Pass the updated environment
 )
 
-log.info(f'Started HereSphere server in the background: PID {background_process.pid}')
+stash_log.info(f'Started HereSphere server in the background: PID {background_process.pid}')
 sys.exit(0)
