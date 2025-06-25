@@ -7,7 +7,7 @@ ui:
   requires: 
   - stashUserscriptLibrary
   javascript:
-  - stash-plugin/js/stash-vroom.js
+  - plugin/js/stash-vroom.js
 # TODO
 # can be BOOLEAN, NUMBER, or STRING
 # settings:
@@ -16,7 +16,7 @@ ui:
 #     type: STRING
 exec:
   - python
-  - "{pluginDir}/stash-plugin/start.py"
+  - "{pluginDir}/plugin/start.py"
 interface: raw
 tasks:
   - name: Run HereSphere server

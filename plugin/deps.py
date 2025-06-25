@@ -32,7 +32,7 @@ if not json_input_str:
 json_input = json.loads(json_input_str)
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
-server_py = f'{plugin_dir}/stash-plugin/hs_server.py'
+server_py = f'{plugin_dir}/plugin/hs_server.py'
 
 if os.environ.get(f'SKIP_VROOM_INSTALL'):
     # TODO: This could be a setting in the UI.
