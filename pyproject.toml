@@ -25,4 +25,5 @@ queries_path = "stash_vroom/queries.graphql"
 target_package_name = "stash_client"
 target_package_path = "stash_vroom"
 client_name = "Stash"
-async_client = true
+convert_to_snake_case = false
+async_client = false
