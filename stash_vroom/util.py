@@ -22,6 +22,9 @@ import logging
 
 log = logging.getLogger(__name__)
 
+SCRIPT_PATH = os.path.abspath(__file__)
+SCRIPT_DIR = os.path.dirname(SCRIPT_PATH)
+
 def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv', 'mov')):
     """
     Return a regular expression pattern to match file extensions.
@@ -45,3 +48,6 @@ def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv', 'mov')):
     extensions = [ re.escape(X) for X in extensions ]
     extensions = '|'.join(extensions)
     return r'\.(' + extensions + r')$'
+
+def get_font_dirpath():
+    return f'{SCRIPT_DIR}/fonts'
