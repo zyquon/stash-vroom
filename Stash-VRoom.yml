@@ -1,0 +1,25 @@
+name: Stash-VRoom
+# requires: stashUserscriptLibrary
+description: HereSphere support for browsing and viewing VR videos
+version: 0.1.0
+url: https://github.com/zyquon/stash-vroom
+ui:
+  requires: 
+  - stashUserscriptLibrary
+  javascript:
+  - stash-vroom.js
+settings:
+  vroomTest:
+    displayName: Stash-VRoom Test
+    type: STRING
+exec:
+  - python
+  - "{pluginDir}/stashPlugin.py"
+interface: raw
+tasks:
+  - name: Stash-VRoom Test
+    description: Testing the Stash-VRoom plugin
+    defaultArgs:
+      name: foo
+      path: null
+      baz: null
