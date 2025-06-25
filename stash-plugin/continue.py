@@ -26,7 +26,7 @@ import stash_log
 log_file = '/tmp/stash_plugin.log'
 handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-log = logging.getLogger('stash_plugin')
+log = logging.getLogger('stash-plugin')
 log.setLevel(logging.DEBUG)
 log.addHandler(handler)
 
