@@ -1,0 +1,69 @@
+query Version {
+  version {
+    hash
+    version
+    build_time
+  }
+}
+
+query ImagesByIds($ids:[ID!]) {
+  findImages(ids:$ids, filter:{per_page:-1}) {
+    images {
+      ...Img
+    }
+  }
+}
+
+query ImagesBySearch($q:String!) {
+  findImages(ids:[], filter:{q:$q, per_page:-1}) {
+    images {
+      ...Img
+    }
+  }
+}
+
+query ImagesByTagIds($ids: [ID!]) {
+  findImages(image_filter:{tags:{modifier:INCLUDES, value:$ids}}) {
+    images {
+      ...Img
+    }
+  }
+}
+
+query TagsByRegex($regex: String!) {
+  findTags(tag_filter:{name: {value:$regex, modifier:MATCHES_REGEX}}, filter:{per_page:-1}) {
+    tags {
+      id
+      name
+    }
+  }
+}
+
+fragment Img on Image {
+  id
+  urls
+  title
+  paths {
+    image
+    thumbnail
+    preview
+  }
+  tags {
+    id
+    name
+  }
+  
+  visual_files {
+    __typename ... on ImageFile {
+      id
+      path
+      size
+      width
+      height
+      fingerprints {
+        type
+        value
+      }
+    }
+  }
+}
