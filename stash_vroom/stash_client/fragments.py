@@ -6,6 +6,7 @@ from typing import Annotated, Any, List, Literal, Optional, Union
 from pydantic import Field
 
 from .base_model import BaseModel
+from .enums import FilterMode, GenderEnum, SortDirectionEnum
 
 
 class Img(BaseModel):
@@ -52,4 +53,159 @@ class ImgVisualFilesImageFileFingerprints(BaseModel):
     value: str
 
 
+class SavedFilterData(BaseModel):
+    id: str
+    mode: FilterMode
+    name: str
+    find_filter: Optional["SavedFilterDataFindFilter"]
+    object_filter: Optional[Any]
+    ui_options: Optional[Any]
+
+
+class SavedFilterDataFindFilter(BaseModel):
+    q: Optional[str]
+    page: Optional[int]
+    per_page: Optional[int]
+    sort: Optional[str]
+    direction: Optional[SortDirectionEnum]
+
+
+class Scene(BaseModel):
+    id: str
+    urls: List[str]
+    title: Optional[str]
+    details: Optional[str]
+    rating100: Optional[int]
+    date: Optional[str]
+    created_at: Any
+    o_counter: Optional[int]
+    play_count: Optional[int]
+    studio: Optional["SceneStudio"]
+    paths: "ScenePaths"
+    files: List["SceneFiles"]
+    performers: List["ScenePerformers"]
+    scene_markers: List["SceneSceneMarkers"]
+    tags: List["SceneTags"]
+
+
+class SceneStudio(BaseModel):
+    name: str
+    tags: List["SceneStudioTags"]
+    parent_studio: Optional["SceneStudioParentStudio"]
+
+
+class SceneStudioTags(BaseModel):
+    id: str
+    name: str
+
+
+class SceneStudioParentStudio(BaseModel):
+    name: str
+    parent_studio: Optional["SceneStudioParentStudioParentStudio"]
+
+
+class SceneStudioParentStudioParentStudio(BaseModel):
+    name: str
+    parent_studio: Optional["SceneStudioParentStudioParentStudioParentStudio"]
+
+
+class SceneStudioParentStudioParentStudioParentStudio(BaseModel):
+    name: str
+
+
+class ScenePaths(BaseModel):
+    stream: Optional[str]
+    screenshot: Optional[str]
+    preview: Optional[str]
+
+
+class SceneFiles(BaseModel):
+    format: str
+    basename: str
+    size: Any
+    width: int
+    height: int
+    duration: float
+    fingerprints: List["SceneFilesFingerprints"]
+
+
+class SceneFilesFingerprints(BaseModel):
+    type: str
+    value: str
+
+
+class ScenePerformers(BaseModel):
+    id: str
+    name: str
+    gender: Optional[GenderEnum]
+    country: Optional[str]
+    favorite: bool
+    ethnicity: Optional[str]
+    fake_tits: Optional[str]
+    tags: List["ScenePerformersTags"]
+
+
+class ScenePerformersTags(BaseModel):
+    name: str
+
+
+class SceneSceneMarkers(BaseModel):
+    id: str
+    seconds: float
+    primary_tag: "SceneSceneMarkersPrimaryTag"
+    tags: List["SceneSceneMarkersTags"]
+
+
+class SceneSceneMarkersPrimaryTag(BaseModel):
+    name: str
+
+
+class SceneSceneMarkersTags(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneSceneMarkersTagsParents"]
+
+
+class SceneSceneMarkersTagsParents(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneSceneMarkersTagsParentsParents"]
+
+
+class SceneSceneMarkersTagsParentsParents(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneSceneMarkersTagsParentsParentsParents"]
+
+
+class SceneSceneMarkersTagsParentsParentsParents(BaseModel):
+    id: str
+    name: str
+
+
+class SceneTags(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneTagsParents"]
+
+
+class SceneTagsParents(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneTagsParentsParents"]
+
+
+class SceneTagsParentsParents(BaseModel):
+    id: str
+    name: str
+    parents: List["SceneTagsParentsParentsParents"]
+
+
+class SceneTagsParentsParentsParents(BaseModel):
+    id: str
+    name: str
+
+
 Img.model_rebuild()
+SavedFilterData.model_rebuild()
+Scene.model_rebuild()

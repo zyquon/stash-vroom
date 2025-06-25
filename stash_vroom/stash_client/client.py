@@ -6,9 +6,13 @@ from typing import Any, Dict, List, Optional, Union
 from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
 from .configuration import Configuration
+from .enums import FilterMode
 from .images_by_ids import ImagesByIds
 from .images_by_search import ImagesBySearch
 from .images_by_tag_ids import ImagesByTagIds
+from .input_types import FindFilterType, SceneFilterType
+from .saved_filters import SavedFilters
+from .scenes import Scenes
 from .tags_by_regex import TagsByRegex
 from .version import Version
 
@@ -62,6 +66,158 @@ class Stash(BaseClient):
         )
         data = self.get_data(response)
         return Configuration.model_validate(data)
+
+    def saved_filters(self, mode: FilterMode, **kwargs: Any) -> SavedFilters:
+        query = gql(
+            """
+            query SavedFilters($mode: FilterMode!) {
+              findSavedFilters(mode: $mode) {
+                ...SavedFilterData
+              }
+            }
+
+            fragment SavedFilterData on SavedFilter {
+              id
+              mode
+              name
+              find_filter {
+                q
+                page
+                per_page
+                sort
+                direction
+              }
+              object_filter
+              ui_options
+            }
+            """
+        )
+        variables: Dict[str, object] = {"mode": mode}
+        response = self.execute(
+            query=query, operation_name="SavedFilters", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return SavedFilters.model_validate(data)
+
+    def scenes(
+        self, filter: FindFilterType, scene_filter: SceneFilterType, **kwargs: Any
+    ) -> Scenes:
+        query = gql(
+            """
+            query Scenes($filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+              findScenes(filter: $filter, scene_filter: $scene_filter) {
+                count
+                duration
+                filesize
+                scenes {
+                  ...Scene
+                }
+              }
+            }
+
+            fragment Scene on Scene {
+              id
+              urls
+              title
+              details
+              rating100
+              date
+              created_at
+              o_counter
+              play_count
+              studio {
+                name
+                tags {
+                  id
+                  name
+                }
+                parent_studio {
+                  name
+                  parent_studio {
+                    name
+                    parent_studio {
+                      name
+                    }
+                  }
+                }
+              }
+              paths {
+                stream
+                screenshot
+                preview
+              }
+              files {
+                format
+                basename
+                size
+                width
+                height
+                duration
+                fingerprints {
+                  type
+                  value
+                }
+              }
+              performers {
+                id
+                name
+                gender
+                country
+                favorite
+                ethnicity
+                fake_tits
+                tags {
+                  name
+                }
+              }
+              scene_markers {
+                id
+                seconds
+                primary_tag {
+                  name
+                }
+                tags {
+                  id
+                  name
+                  parents {
+                    id
+                    name
+                    parents {
+                      id
+                      name
+                      parents {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+              tags {
+                id
+                name
+                parents {
+                  id
+                  name
+                  parents {
+                    id
+                    name
+                    parents {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"filter": filter, "scene_filter": scene_filter}
+        response = self.execute(
+            query=query, operation_name="Scenes", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return Scenes.model_validate(data)
 
     def images_by_ids(
         self, ids: Union[Optional[List[str]], UnsetType] = UNSET, **kwargs: Any
