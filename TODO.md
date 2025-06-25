@@ -3,6 +3,7 @@ Bugs
 
 1. Document the circumstances and procedure to delete the HS media library and reload
 1. Missing events: new tag, unknown tag, star rating, seen, play, pause, doubleclick, fav, unfav
+1. Document somewhere a use case for "dynamic" tagging, which is Studio tags, i.e. if a studio has tag X, then tag it Y, which Stash cannot do (except performer tags)
 
 Features
 ========
