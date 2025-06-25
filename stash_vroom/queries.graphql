@@ -17,6 +17,7 @@ query Configuration {
 				api_key
 			}
 		}
+    plugins
   }
 }
 
