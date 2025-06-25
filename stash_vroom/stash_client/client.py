@@ -3,8 +3,9 @@
 
 from typing import Any, Dict, List, Optional, Union
 
-from .async_base_client import AsyncBaseClient
+from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
+from .configuration import Configuration
 from .images_by_ids import ImagesByIds
 from .images_by_search import ImagesBySearch
 from .images_by_tag_ids import ImagesByTagIds
@@ -16,8 +17,8 @@ def gql(q: str) -> str:
     return q
 
 
-class Stash(AsyncBaseClient):
-    async def version(self, **kwargs: Any) -> Version:
+class Stash(BaseClient):
+    def version(self, **kwargs: Any) -> Version:
         query = gql(
             """
             query Version {
@@ -30,13 +31,38 @@ class Stash(AsyncBaseClient):
             """
         )
         variables: Dict[str, object] = {}
-        response = await self.execute(
+        response = self.execute(
             query=query, operation_name="Version", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return Version.model_validate(data)
 
-    async def images_by_ids(
+    def configuration(self, **kwargs: Any) -> Configuration:
+        query = gql(
+            """
+            query Configuration {
+              configuration {
+                general {
+                  ffmpegPath
+                  ffprobePath
+                  stashBoxes {
+                    name
+                    endpoint
+                    api_key
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = self.execute(
+            query=query, operation_name="Configuration", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return Configuration.model_validate(data)
+
+    def images_by_ids(
         self, ids: Union[Optional[List[str]], UnsetType] = UNSET, **kwargs: Any
     ) -> ImagesByIds:
         query = gql(
@@ -80,13 +106,13 @@ class Stash(AsyncBaseClient):
             """
         )
         variables: Dict[str, object] = {"ids": ids}
-        response = await self.execute(
+        response = self.execute(
             query=query, operation_name="ImagesByIds", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return ImagesByIds.model_validate(data)
 
-    async def images_by_search(self, q: str, **kwargs: Any) -> ImagesBySearch:
+    def images_by_search(self, q: str, **kwargs: Any) -> ImagesBySearch:
         query = gql(
             """
             query ImagesBySearch($q: String!) {
@@ -128,13 +154,13 @@ class Stash(AsyncBaseClient):
             """
         )
         variables: Dict[str, object] = {"q": q}
-        response = await self.execute(
+        response = self.execute(
             query=query, operation_name="ImagesBySearch", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return ImagesBySearch.model_validate(data)
 
-    async def images_by_tag_ids(
+    def images_by_tag_ids(
         self, ids: Union[Optional[List[str]], UnsetType] = UNSET, **kwargs: Any
     ) -> ImagesByTagIds:
         query = gql(
@@ -178,13 +204,13 @@ class Stash(AsyncBaseClient):
             """
         )
         variables: Dict[str, object] = {"ids": ids}
-        response = await self.execute(
+        response = self.execute(
             query=query, operation_name="ImagesByTagIds", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return ImagesByTagIds.model_validate(data)
 
-    async def tags_by_regex(self, regex: str, **kwargs: Any) -> TagsByRegex:
+    def tags_by_regex(self, regex: str, **kwargs: Any) -> TagsByRegex:
         query = gql(
             """
             query TagsByRegex($regex: String!) {
@@ -201,7 +227,7 @@ class Stash(AsyncBaseClient):
             """
         )
         variables: Dict[str, object] = {"regex": regex}
-        response = await self.execute(
+        response = self.execute(
             query=query, operation_name="TagsByRegex", variables=variables, **kwargs
         )
         data = self.get_data(response)
