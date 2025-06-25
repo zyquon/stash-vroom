@@ -23,7 +23,7 @@ clean: Makefile nodoc
 
 stash_vroom.rst: Makefile
 	# sphinx-apidoc --force --no-toc --module-first --output-dir $(SOURCEDIR)/ ../stash_vroom
-	sphinx-apidoc --force --no-toc --module-first --separate --output-dir $(SOURCEDIR)/ ../stash_vroom
+	sphinx-apidoc --force --no-toc --module-first --separate --output-dir $(SOURCEDIR)/ ../stash_vroom '../stash_vroom/stash_client'
 
 html: Makefile stash_vroom.rst
 	$(SPHINXBUILD) -M "html" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
