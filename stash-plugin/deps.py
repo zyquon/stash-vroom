@@ -1,4 +1,4 @@
-# Copyright 2023 Zyquo Onrel
+# Copyright 2024 Zyquo Onrel
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import subprocess
 
 import stash_log as log
 
-log.info('Stash-VRoom step 2: Pip')
+log.info('Stash-VRoom step 2: Dependencies')
 json_input_str = os.environ.get('STASH_INPUT')
 if not json_input_str:
     log.error('Exit: STASH_INPUT environment variable not set')
@@ -32,10 +32,11 @@ if not json_input_str:
 json_input = json.loads(json_input_str)
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
-daemon_py = f'{plugin_dir}/stash-plugin/daemon.py'
+server_py = f'{plugin_dir}/stash-plugin/hs_server.py'
 
 if os.environ.get(f'SKIP_VROOM_INSTALL'):
-    log.debug(f'Skip pip install')
+    # TODO: This could be a setting in the UI.
+    log.debug(f'Skip dependency install')
 else:
     # log.info(f'Install dependencies: {venv_dir}')
     try:
@@ -55,13 +56,15 @@ else:
 
 log.info(f'Start HereSphere server in the background')
 background_process = subprocess.Popen(
-    [f'{venv_dir}/bin/python', daemon_py],
-    stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
-    stderr=subprocess.DEVNULL,  # Redirect stderr to avoid clutter
+    [f'{venv_dir}/bin/python', server_py],
+    # stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
+    stdout=sys.stdout,           # Redirect stdout to the parent process
+    # stderr=subprocess.DEVNULL,  # Redirect stderr to avoid clutter
+    stderr=sys.stderr,           # Redirect stderr to the parent process
     # start_new_session=True,     # Detach the process from the parent
     start_new_session=False,    # Keep the process in the same session
-    env=os.environ              # Pass the updated environment
+    env=os.environ,             # Pass the updated environment
 )
 
-# log.info('Background process started, exiting parent process.')
+log.info(f'Started HereSphere server in the background: PID {background_process.pid}')
 sys.exit(0)
