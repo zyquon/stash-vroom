@@ -18,6 +18,7 @@ This module has common and frequently-used functions, which have no big dependen
 
 import os
 import re
+import copy
 import json
 import logging
 
@@ -55,6 +56,7 @@ def get_font_dirpath():
 
 def saved_filter_to_find_filter(saved_filter):
     find_filter = saved_filter['find_filter']
+    find_filter = copy.deepcopy(find_filter)
 
     # Always query for the entire data set without paging.
     find_filter['page'] = 1
@@ -63,6 +65,7 @@ def saved_filter_to_find_filter(saved_filter):
 
 def saved_filter_to_scene_filter(saved_filter):
     object_filter = saved_filter['object_filter']
+    object_filter = copy.deepcopy(object_filter)
     fix_object_filter(object_filter)
     return json.loads(json.dumps(object_filter)) # Make sure no autogen objects persist.
 
