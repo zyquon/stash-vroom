@@ -27,13 +27,24 @@ query SavedFilters($mode: FilterMode!) {
   }
 }
 
-query Scenes($filter: FindFilterType!, $scene_filter: SceneFilterType!) {
-  findScenes(filter: $filter, scene_filter: $scene_filter) {
+query Scenes($find_filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+  findScenes(filter: $find_filter, scene_filter: $scene_filter) {
     count
     duration
     filesize
     scenes {
       ...Scene
+    }
+  }
+}
+
+query SceneIds($find_filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+  findScenes(filter: $find_filter, scene_filter: $scene_filter) {
+    count
+    duration
+    filesize
+    scenes {
+      id
     }
   }
 }
