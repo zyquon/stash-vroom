@@ -12,7 +12,10 @@ authors = [
 readme = "README.md"
 license = "Apache-2.0"
 classifiers = []
-dynamic = ["dependencies", "optional-dependencies", "requires-python", "scripts"]
+dynamic = ["dependencies", "optional-dependencies", "requires-python"]
+
+[project.scripts]
+ffmpeg-vroom = "stash_vroom.cli.ffmpeg:main"
 
 [project.urls]
 bugs = "https://github.com/zyquon/stash-vroom/issues"
