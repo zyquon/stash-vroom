@@ -41,10 +41,11 @@ from . import stash
 log = logging.getLogger(__name__)
 
 new_scene_filter_signature = inspect.Signature([
-    inspect.Parameter("name", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-    inspect.Parameter("search_filter", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
-    inspect.Parameter("scene_filter", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
-    inspect.Parameter("filter_id", inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None, annotation=Optional[str]),
+    inspect.Parameter('name', inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
+    inspect.Parameter('search_filter', inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
+    inspect.Parameter('scene_filter', inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=dict),
+    inspect.Parameter('scenes', inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None, annotation=Optional[List[Dict[str, Any]]]),
+    inspect.Parameter('filter_id', inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None, annotation=Optional[str]),
 ])
 
 class HereSphere(Flask):
@@ -56,7 +57,7 @@ class HereSphere(Flask):
     """
 
     saved_scene_filters = psygnal.containers.EventedList()
-    new_scene_filter = psygnal.Signal(new_scene_filter_signature, check_types_on_connect=True)
+    saved_filter = psygnal.Signal(new_scene_filter_signature, check_types_on_connect=True)
     
     def __init__(self, name='Stash VRoom HereSphere Service', **kwargs):
         """
@@ -69,19 +70,19 @@ class HereSphere(Flask):
         super().__init__(name, **kwargs)
         self._vroom_lock = threading.Lock()
 
-        self._vroom_stash = None # Will be initialized later with init_stash()
+        self.stash_client = None # Will be initialized later with init_stash()
 
         self._vroom_cache = {}
-        self._vroom_state = {}
-        self._vroom_state['last_query_at'] = None # datetime.datetime.now()
-        self._vroom_state['inputs'] = {} # scene_id -> [ (timestamp, str), (timestamp, str), ...]
-        self._vroom_state['doubleclick'] = {} # scene_id -> timestamp
-        self._vroom_state['playback'] = {} # scene_id -> timestamp
+        # self._vroom_state = {}
+        # self._vroom_state['last_query_at'] = None # datetime.datetime.now()
+        # self._vroom_state['inputs'] = {} # scene_id -> [ (timestamp, str), (timestamp, str), ...]
+        # self._vroom_state['doubleclick'] = {} # scene_id -> timestamp
+        # self._vroom_state['playback'] = {} # scene_id -> timestamp
 
-        self._vroom_handlers = {}
-        self._vroom_handlers['_cheats'] = {} # directions tuple -> list of handlers
+        self._vroom_scenes_by_filter = {} # filter_name -> [ scene, scene, ... ]
 
-        # self.saved_scene_filters = psygnal.containers.EventedList()
+        # self._vroom_handlers = {}
+        # self._vroom_handlers['_cheats'] = {} # directions tuple -> list of handlers
 
         self._register_routes()
         log.info(f"Initialized VRoom app: {name}")
@@ -91,28 +92,35 @@ class HereSphere(Flask):
     
     def init_stash(self, stash_url, stash_headers=None, validate=True):
         # Initialize the Stash connection. This runs just before the Flask app runs.
-        self._vroom_stash = stash.init(stash_url=stash_url, stash_headers=stash_headers, validate=validate)
-        self.load_saved_scene_filters()
+        self.stash_client = stash.init(stash_url=stash_url, stash_headers=stash_headers, validate=validate)
+        self.load_saved_filters()
 
-    def load_saved_scene_filters(self):
+    def load_saved_filters(self):
         """
         Load scene filters from the Stash API and populate the scene_filters evented list.
         """
-        log.debug("Load scene filters from Stash API")
-        res = self._vroom_stash.saved_filters(mode='SCENES')
+        log.debug("Load saved filters from Stash API")
+
+        res = self.stash_client.saved_filters(mode='SCENES')
         res = res.model_dump()
+        scene_filters = res['findSavedFilters']
+
+        res = self.stash_client.saved_filters(mode='IMAGES')
+        res = res.model_dump()
+        image_filters = res['findSavedFilters']
 
         # Add any saved filters having the proper ("AA" or "VR") prefix to the scene_filters list, ensuring to maintain ascending order of filters by int() of its ['id'] field.
-        for filter in res['findSavedFilters']:
+        for filter in (scene_filters + image_filters):
+            # filter['mode'] # 'SCENES' or 'IMAGES'
             filter_name = filter['name']
-            match = re.search(r'^(AA|VR|XP)\s*\|\s*(.+)$', filter_name)
+            match = re.search(r'^(AA|VR|HS|XP)\s*\|\s*(.+)$', filter_name)
             if not match:
-                log.debug(f'Skip filter with inactive name: {filter_name!r}')
+                log.debug(f'Skip {filter["mode"]} filter with inactive name: {filter_name!r}')
                 continue
 
-            filter_name = match.group(2).strip()
             filter_id = int(filter['id'])
-            log.debug(f'Filter {filter_id}: {filter_name!r}')
+            filter_key = filter['mode'][0].lower() + f':' + str(filter_id)
+            log.debug(f'Filter {filter_name!r}: {filter_id!r} with key {filter_key!r}')
 
             # Now walk the existing filters in order until this ID is lesser than it (insert before) or the list exhausts (append to end).
             filter_i = None
@@ -137,11 +145,57 @@ class HereSphere(Flask):
                 self.saved_scene_filters.append(filter)
                 filter_i = len(self.saved_scene_filters) - 1
 
+            # Prepare to populate the cache for this filter.
+            scenes_list = psygnal.containers.EventedList([])
+            self._vroom_scenes_by_filter[filter_name] = scenes_list
+
             # Also emit the more convenient search objects.
             find_filter = util.saved_filter_to_find_filter(filter)
             scene_filter = util.saved_filter_to_scene_filter(filter)
-            self.new_scene_filter.emit(filter_name, find_filter, scene_filter, filter['id'])
+            self.saved_filter.emit(filter_name, find_filter, scene_filter, scenes_list, filter['id'])
+
+            self.query_scenes_by_filter(filter)
     
+    def query_scenes_by_filter(self, filter: dict):
+        """
+        Query scenes from the Stash API based on a saved filter.
+
+        :param filter: The saved filter object to query scenes
+        """
+        filter_name = filter['name']
+        filter_name = re.sub(r'^(AA|VR|XP)\s*\|\s*', '', filter_name).strip()
+        log.debug(f"Query scenes by filter: {filter_name}")
+
+        find_filter = util.saved_filter_to_find_filter(filter)
+        scene_filter = util.saved_filter_to_scene_filter(filter)
+        
+        # Query the Stash API for scenes matching the filter.
+        res = self.stash_client.scenes(find_filter=find_filter, scene_filter=scene_filter)
+        res = res.model_dump()
+        log.debug(f'Saved filter {filter_name!r}: {res["findScenes"]["count"]} scenes found')
+        
+        ok_scenes = self._vroom_scenes_by_filter[filter_name]
+
+        for reply_i, scene in enumerate(res['findScenes']['scenes']):
+            known_i = None
+            for j, existing_scene in enumerate(ok_scenes):
+                if existing_scene['id'] == scene['id']:
+                    known_i = j
+                    break
+            
+            if known_i is None:
+                log.debug(f"New scene {scene['id']} in filter '{filter_name}' at index {reply_i}")
+                ok_scenes.insert(reply_i, scene)
+            else:
+                if known_i != reply_i:
+                    log.debug(f"Move known scene {scene['id']} in filter '{filter_name}' from index {known_i} to {reply_i}")
+                    ok_scenes.move(known_i, reply_i)
+                else:
+                    log.debug(f"Known scene {scene['id']} in filter '{filter_name}' already at index {reply_i}")
+                    pass
+                # Also refresh the data just in case there is something new (TODO This should be an event)
+                ok_scenes[reply_i] = scene
+            
     def _cache_set(self, key: str, value: Any):
         with self._vroom_lock:
             self._vroom_cache[key] = value
