@@ -15,6 +15,10 @@ settings:
     displayName: Skip dependency check
     description: Do not confirm and upgrade all dependencies as needed
     type: BOOLEAN
+  doImages:
+    displayName: Include images
+    description: Support images by streaming "1-frame videos" to HereSphere
+    type: BOOLEAN
 exec:
   - python
   - "{pluginDir}/plugin/start.py"
