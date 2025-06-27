@@ -238,7 +238,9 @@ from .input_types import (
     TagUpdateInput,
     TimestampCriterionInput,
 )
+from .save_config import SaveConfig
 from .saved_filters import SavedFilters, SavedFiltersFindSavedFilters
+from .scene_ids import SceneIds, SceneIdsFindScenes, SceneIdsFindScenesScenes
 from .scenes import Scenes, ScenesFindScenes, ScenesFindScenesScenes
 from .tags_by_regex import TagsByRegex, TagsByRegexFindTags, TagsByRegexFindTagsTags
 from .version import Version, VersionVersion
@@ -382,6 +384,7 @@ __all__ = [
     "ReorderSubGroupsInput",
     "ResolutionCriterionInput",
     "ResolutionEnum",
+    "SaveConfig",
     "SaveFilterInput",
     "SavedFilterData",
     "SavedFilterDataFindFilter",
@@ -397,6 +400,9 @@ __all__ = [
     "SceneFilterType",
     "SceneGroupInput",
     "SceneHashInput",
+    "SceneIds",
+    "SceneIdsFindScenes",
+    "SceneIdsFindScenesScenes",
     "SceneMarkerCreateInput",
     "SceneMarkerFilterType",
     "SceneMarkerUpdateInput",

@@ -18,6 +18,7 @@ class ConfigurationConfiguration(BaseModel):
 class ConfigurationConfigurationGeneral(BaseModel):
     ffmpegPath: str
     ffprobePath: str
+    parallelTasks: int
     stashBoxes: List["ConfigurationConfigurationGeneralStashBoxes"]
 
 

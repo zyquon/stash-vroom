@@ -11,7 +11,9 @@ from .images_by_ids import ImagesByIds
 from .images_by_search import ImagesBySearch
 from .images_by_tag_ids import ImagesByTagIds
 from .input_types import FindFilterType, SceneFilterType
+from .save_config import SaveConfig
 from .saved_filters import SavedFilters
+from .scene_ids import SceneIds
 from .scenes import Scenes
 from .tags_by_regex import TagsByRegex
 from .version import Version
@@ -49,6 +51,7 @@ class Stash(BaseClient):
                 general {
                   ffmpegPath
                   ffprobePath
+                  parallelTasks
                   stashBoxes {
                     name
                     endpoint
@@ -66,6 +69,21 @@ class Stash(BaseClient):
         )
         data = self.get_data(response)
         return Configuration.model_validate(data)
+
+    def save_config(self, plugin_id: str, input: Any, **kwargs: Any) -> SaveConfig:
+        query = gql(
+            """
+            mutation SaveConfig($plugin_id: ID!, $input: Map!) {
+              configurePlugin(plugin_id: $plugin_id, input: $input)
+            }
+            """
+        )
+        variables: Dict[str, object] = {"plugin_id": plugin_id, "input": input}
+        response = self.execute(
+            query=query, operation_name="SaveConfig", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return SaveConfig.model_validate(data)
 
     def saved_filters(self, mode: FilterMode, **kwargs: Any) -> SavedFilters:
         query = gql(
@@ -100,12 +118,12 @@ class Stash(BaseClient):
         return SavedFilters.model_validate(data)
 
     def scenes(
-        self, filter: FindFilterType, scene_filter: SceneFilterType, **kwargs: Any
+        self, find_filter: FindFilterType, scene_filter: SceneFilterType, **kwargs: Any
     ) -> Scenes:
         query = gql(
             """
-            query Scenes($filter: FindFilterType!, $scene_filter: SceneFilterType!) {
-              findScenes(filter: $filter, scene_filter: $scene_filter) {
+            query Scenes($find_filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+              findScenes(filter: $find_filter, scene_filter: $scene_filter) {
                 count
                 duration
                 filesize
@@ -212,12 +230,42 @@ class Stash(BaseClient):
             }
             """
         )
-        variables: Dict[str, object] = {"filter": filter, "scene_filter": scene_filter}
+        variables: Dict[str, object] = {
+            "find_filter": find_filter,
+            "scene_filter": scene_filter,
+        }
         response = self.execute(
             query=query, operation_name="Scenes", variables=variables, **kwargs
         )
         data = self.get_data(response)
         return Scenes.model_validate(data)
+
+    def scene_ids(
+        self, find_filter: FindFilterType, scene_filter: SceneFilterType, **kwargs: Any
+    ) -> SceneIds:
+        query = gql(
+            """
+            query SceneIds($find_filter: FindFilterType!, $scene_filter: SceneFilterType!) {
+              findScenes(filter: $find_filter, scene_filter: $scene_filter) {
+                count
+                duration
+                filesize
+                scenes {
+                  id
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "find_filter": find_filter,
+            "scene_filter": scene_filter,
+        }
+        response = self.execute(
+            query=query, operation_name="SceneIds", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return SceneIds.model_validate(data)
 
     def images_by_ids(
         self, ids: Union[Optional[List[str]], UnsetType] = UNSET, **kwargs: Any
