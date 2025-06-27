@@ -11,6 +11,7 @@ query Configuration {
     general {
       ffmpegPath
       ffprobePath
+      parallelTasks
       stashBoxes {
         name
         endpoint
@@ -19,6 +20,10 @@ query Configuration {
     }
     plugins
   }
+}
+
+mutation SaveConfig ($plugin_id:ID!, $input:Map!) {
+  configurePlugin(plugin_id:$plugin_id, input:$input)
 }
 
 query SavedFilters($mode: FilterMode!) {
