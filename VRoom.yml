@@ -1,5 +1,4 @@
-name: Stash-VRoom
-# requires: PythonDepManager
+name: VRoom
 description: HereSphere support for browsing and viewing VR videos
 version: 0.1.0
 url: https://zyquon.github.io/stash-vroom/
@@ -8,17 +7,16 @@ ui:
   - stashUserscriptLibrary
   javascript:
   - plugin/js/stash-vroom.js
-# TODO
-# can be BOOLEAN, NUMBER, or STRING
 settings:
   skipDependencyCheck:
     displayName: Skip dependency check
     description: Do not confirm and upgrade all dependencies as needed
     type: BOOLEAN
   doImages:
-    displayName: Include images
+    displayName: Support images
     description: Support images by streaming "1-frame videos" to HereSphere
     type: BOOLEAN
+# can be BOOLEAN, NUMBER, or STRING
 exec:
   - python
   - "{pluginDir}/plugin/start.py"
@@ -26,6 +24,13 @@ interface: raw
 tasks:
   - name: Run HereSphere server
     description: Start the HereSphere server to browse and view VR videos
-    # defaultArgs:
-    #   name: foo
-    #   baz: null
+  - name: Enable FFmpeg for VR
+    description: Good cropped 2D covers and previews for scenes tagged VR by wrapping ffmpeg
+    defaultArgs:
+      task: ffmpeg-wrapper
+      action: enable
+  - name: Disable FFmpeg for VR
+    description: Disable FFmpeg for VR by restoring your original ffmpeg settings
+    defaultArgs:
+      task: ffmpeg-wrapper
+      action: disable

@@ -24,12 +24,12 @@ import subprocess
 import util
 import stash_log
 
-stash_log.info('Stash-VRoom step 2: Dependencies')
+stash_log.debug('VRoom step 2: Dependencies')
 
 json_input = util.get_stash_input()
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
-server_py = f'{plugin_dir}/plugin/hs_server.py'
+runner_py = f'{plugin_dir}/plugin/runner.py'
 
 # Attempt to ascertain if the plugin setting `skipDependencyCheck` is true. If so, skip. If anything goes wrong, proceed with the dependency check.
 skip_check = False
@@ -39,7 +39,7 @@ try:
     stash_headers = util.get_stash_input_headers()
     client = stash_vroom.stash.init(stash_url, stash_headers)
     response = client.configuration().model_dump()
-    my_config = response['configuration']['plugins'].get('Stash-VRoom', {})
+    my_config = response['configuration']['plugins'].get('VRoom', {})
     skip_check = my_config.get('skipDependencyCheck', False)
 except Exception as e:
     stash_log.warning(f'Proceeding with dependency check due to error: {e}')
@@ -63,9 +63,9 @@ else:
         if result and result.stderr:
             stash_log.error(f'Pip install error message: {result.stderr}')
 
-stash_log.info(f'Start HereSphere server in the background')
+stash_log.debug(f'Start HereSphere runner in the background')
 background_process = subprocess.Popen(
-    [f'{venv_dir}/bin/python', server_py],
+    [f'{venv_dir}/bin/python', runner_py],
     # stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
     stdout=sys.stdout,           # Redirect stdout to the parent process
     # stderr=subprocess.DEVNULL,  # Redirect stderr to avoid clutter
@@ -75,5 +75,5 @@ background_process = subprocess.Popen(
     env=os.environ,             # Pass the updated environment
 )
 
-stash_log.info(f'Started HereSphere server in the background: PID {background_process.pid}')
+# stash_log.debug(f'Started HereSphere runner in the background: PID {background_process.pid}')
 sys.exit(0)

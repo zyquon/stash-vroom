@@ -25,14 +25,19 @@ import stash_log
 stash_log.debug(f'Load')
 
 try:
+    import stash_vroom
     from stash_vroom.heresphere import HereSphere
 except ImportError as e:
-    stash_log.error(f'Failed to load Stash-VRoom Python package: {e}')
+    stash_log.error(f'Failed to load VRoom Python package: {e}')
     raise
 
 log = None
 
 app = HereSphere('Stash-VRoom')
+app.state = {}
+
+app.state['scenes_by_id'] = {} # scene_id -> scene
+app.state['library'] = []
 
 # @app.saved_scene_filters.events.inserted.connect
 # def on_saved_filter_inserted(i, saved_filter):
@@ -44,9 +49,39 @@ app = HereSphere('Stash-VRoom')
 #     # log.debug(f'Saved filter removed at {i}: {saved_filter!r}')
 #     pass
 
-@app.new_scene_filter.connect
-def on_new_scene_filter(name, find_filter, scene_filter):
-    log.debug(f'Saved filter named {name!r}: {find_filter!r} and {scene_filter!r}')
+@app.saved_filter.connect
+def on_scene_filter(name, find_filter, scene_filter, scenes):
+    log.debug(f'Saved filter named {name!r} with {len(scenes)} initial scenes: {find_filter!r} and {scene_filter!r}')
+
+    library_names = [ X['name'] for X in app.state['library'] ]
+    if name in library_names:
+        log.debug(f'Skip known saved filter: {name!r}')
+        return
+
+    new_lib = {'name':name, 'list':[]}
+    app.state['library'].append(new_lib)
+    app.state['library'].sort(key=lambda x: x['name'])
+
+    # scenes_list = app._vroom_scenes_by_filter[name]
+    @scenes.events.inserted.connect
+    def on_scene_in_filter(i, scene):
+        log.debug(f'Scene {scene["id"]} inserted at {i} in filter {name!r}: {scene!r}')
+        app.state['scenes_by_id'][scene['id']] = scene
+        new_lib['list'].insert(i, scene)
+
+# @app.saved_filter_scene.connect
+def on_scene_in_filter(filter_name, scene):
+    log.debug(f'Scene in filter {filter_name!r}: {find_filter!r}')
+
+    # This call seems faster for a bulk pull of unknown scenes in one round-trip.
+    # It could be optimized with a query fragment only for scene ID, then querying for only the unknown scenes in a followup call.
+    res = app.stash_client.scenes(find_filter=find_filter, scene_filter=scene_filter)
+    res = res.model_dump()
+
+    log.debug(f'Scenes in filter {filter_name!r}: {res["findScenes"]["count"]}')
+    scenes = res['findScenes']['scenes']
+    for scene in scenes:
+        log.debug(f'Found scene {scene["id"]}: {scene["title"]}')
 
 # @app.on_eoubleclick()
 # def on_doubleclick(scene_id, start_ts):
@@ -64,8 +99,8 @@ def main():
     except Exception as e:
         stash_log.error(f'Fatal error: {e}')
         raise
-
-    plugin_args = json_input['args']
+    
+    # Set up logging.
     server_connection = json_input['server_connection']
     plugin_dir = server_connection['PluginDir']
 
@@ -94,6 +129,45 @@ def main():
                 logger_obj.addHandler(stream_handler)
 
     log.info('Stash plugin: Ready')
+
+    # Now route to the correct task to run.
+    plugin_args = json_input.get('args', {})
+
+    if not plugin_args:
+        return server(json_input)
+
+    if plugin_args.get('task') == 'ffmpeg-wrapper' and 'action' in plugin_args:
+        action = plugin_args['action']
+        return set_ffmpeg_wrapper(action)
+
+    raise NotImplementedError(f'Unknown plugin arguments: {plugin_args}')
+
+def set_ffmpeg_wrapper(action):
+    stash_log.debug(f'Set FFmpeg wrapper action: {action}')
+
+    api_url = util.get_stash_input_url()
+    api_headers = util.get_stash_input_headers()
+    client = stash_vroom.stash.init(api_url, api_headers)
+
+    res = client.configuration().model_dump()
+    log.debug(f'Response:\n{json.dumps(res, indent=2)}')
+
+    ffmpegPath = res['configuration']['general']['ffmpegPath']
+    parallelTasks = res['configuration']['general']['parallelTasks']
+    log.debug(f'argv: {sys.argv!r}')
+
+    if action == 'enable':
+    #     from stash_vroom.ffmpeg_wrapper import enable_ffmpeg_wrapper
+    #     enable_ffmpeg_wrapper()
+    #     stash_log.info('FFmpeg wrapper enabled')
+    # elif action == 'disable':
+    #     from stash_vroom.ffmpeg_wrapper import disable_ffmpeg_wrapper
+    #     disable_ffmpeg_wrapper()
+    #     stash_log.info('FFmpeg wrapper disabled')
+    else:
+        raise ValueError(f'Unknown FFmpeg wrapper action: {action}')
+
+def server(json_input):
 
     api_url = util.get_stash_input_url()
     headers = util.get_stash_input_headers()

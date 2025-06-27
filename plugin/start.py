@@ -20,9 +20,9 @@ import sys
 import venv
 import json
 
-import stash_log as log
+import stash_log
 
-log.info('Start')
+stash_log.info('Start')
 json_input_str = sys.stdin.read()
 json_input = json.loads(json_input_str)
 
@@ -32,10 +32,10 @@ python_executable = f'{venv_dir}/bin/python'
 deps_py = f'{plugin_dir}/plugin/deps.py'
 
 if not os.path.exists(venv_dir):
-    log.info(f'Create virtual environment: {venv_dir}')
+    stash_log.debug(f'Create virtual environment: {venv_dir}')
     builder = venv.EnvBuilder(with_pip=True)
     builder.create(venv_dir)
 
-log.info(f'Execute step 2: Dependencies')
+stash_log.debug(f'Execute step 2: Dependencies')
 os.environ['STASH_INPUT'] = json_input_str
 os.execv(python_executable, [python_executable, deps_py])
