@@ -51,6 +51,10 @@ def get_vid_re(extensions=('mp4', 'm4v', 'mkv', 'avi', 'webm', 'wmv', 'mov')):
     extensions = '|'.join(extensions)
     return r'\.(' + extensions + r')$'
 
+def get_ffmpeg_wrapper_path():
+    # Return the path to the ffmpeg-vroom CLI script which is defined in pyproject.toml. This function can import any packages it needs to ascertain the script location.
+    raise NotImplementedError(f'Getting the path to the entrypoint turned out to be hard') # TODO I think just the sys.executable switched to ffmpeg-vroom should be OK
+
 def get_font_dirpath():
     return f'{SCRIPT_DIR}/fonts'
 
