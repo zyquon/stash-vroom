@@ -67,7 +67,7 @@ def main():
     # Add handler to all loggers in the stash_vroom namespace, ensuring they're at DEBUG level
     for logger_name, logger_obj in logging.root.manager.loggerDict.items():
         if isinstance(logger_obj, logging.Logger):
-            if logger_name.startswith('stash_vroom'): # TODO: Or this namespace too.
+            if logger_name.startswith('stash_vroom.') or logger_name in ('hs_server', 'util'):
                 logger_obj.setLevel(logging.DEBUG)
                 logger_obj.addHandler(file_handler)
                 if stream_handler:

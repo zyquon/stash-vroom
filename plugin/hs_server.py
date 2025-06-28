@@ -26,7 +26,6 @@ import stash_log
 from stash_vroom.heresphere import HereSphere
 
 log = logging.getLogger(__name__)
-stash_log.debug(f'Logger name: {log.name!r}') # XXX
 
 app = HereSphere('Stash-VRoom')
 app.state = {}
