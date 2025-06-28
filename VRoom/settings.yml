@@ -1,0 +1,7 @@
+id: VRoom
+name: VRoom
+description: My plugin does awesome things
+version: 1.0
+stashPluginSubDir: my-plugins-dev
+ui:
+  javascript: ./src/index.jsx

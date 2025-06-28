@@ -1,0 +1,17 @@
+{
+  "name": "vroom",
+  "version": "1.0",
+  "type": "module",
+  "scripts": {
+    "build": "stash-plugin-builder --build",
+    "watch": "stash-plugin-builder --watch",
+    "build-dist": "stash-plugin-builder --out=dist --minify",
+    "build-all": "node --no-warnings build.js --script --build",
+    "build-all-dist": "node --no-warnings build.js --script --dist"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "stash-plugin-builder": "^1.0.3"
+  }
+}
