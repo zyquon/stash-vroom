@@ -9,15 +9,30 @@ ui:
   # - https://cdn.jsdelivr.net/npm/graphql-ws@5/umd/graphql-ws.min.js
   - plugin/js/stash-vroom.js
 settings:
-  skipDependencyCheck:
+  a_vrTagName:
+    displayName: VRoom Tag Name
+    description: VRoom will share to HereSphere all videos having this tag or its sub-tags (default "VR")
+    type: STRING
+  b_skipDependencyCheck:
     displayName: Skip dependency check
     description: Do not confirm and upgrade all dependencies as needed
     type: BOOLEAN
-  doImages:
+  c_doImages:
     displayName: Support images
     description: Support images by streaming "1-frame videos" to HereSphere
     type: BOOLEAN
-# can be BOOLEAN, NUMBER, or STRING
+  d_doMarkerSurfing:
+    displayName: Marker surfing
+    description: Report short marker durations to HereSphere, great for "Auto Seek Requires Tag"
+    type: BOOLEAN
+  e_markerSurfingDuration:
+    displayName: "Marker surfing: Marker duration"
+    description: Seconds (default 15) until HereSphere will auto-seek to the next marker or scene
+    type: NUMBER
+  f_markerSurfingRandom:
+    displayName: "Marker surfing: Use random start times"
+    description: False means marker start times are normal. True means choose a random time slice (of the given duration)
+    type: BOOLEAN
 exec:
   - python
   - "{pluginDir}/plugin/start.py"
@@ -26,12 +41,12 @@ tasks:
   - name: Run HereSphere server
     description: Start the HereSphere server to browse and view VR videos
   - name: Enable FFmpeg for VR
-    description: Good cropped 2D covers and previews for scenes tagged VR by wrapping ffmpeg
+    description: Cropped 2D covers, previews, and sprites for scenes tagged VR
     defaultArgs:
       task: ffmpeg-wrapper
       action: enable
   - name: Disable FFmpeg for VR
-    description: Disable FFmpeg for VR by restoring your original ffmpeg settings
+    description: Restore your original ffmpeg and parallel tasks
     defaultArgs:
       task: ffmpeg-wrapper
       action: disable
