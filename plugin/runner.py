@@ -104,7 +104,7 @@ def main():
     server_connection = json_input['server_connection']
     plugin_dir = server_connection['PluginDir']
 
-    log_file = f'{plugin_dir}/plugin/log.txt'
+    log_file = f'{plugin_dir}/plugin/log/vroom-log.txt'
     file_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
@@ -122,11 +122,12 @@ def main():
 
     # Add handler to all loggers in the stash_vroom namespace, ensuring they're at DEBUG level
     for logger_name, logger_obj in logging.root.manager.loggerDict.items():
-        if logger_name.startswith('stash_vroom') and isinstance(logger_obj, logging.Logger):
-            logger_obj.setLevel(logging.DEBUG)
-            logger_obj.addHandler(file_handler)
-            if stream_handler:
-                logger_obj.addHandler(stream_handler)
+        if isinstance(logger_obj, logging.Logger):
+            if logger_name.startswith('stash_vroom'): # TODO: Or this namespace too.
+                logger_obj.setLevel(logging.DEBUG)
+                logger_obj.addHandler(file_handler)
+                if stream_handler:
+                    logger_obj.addHandler(stream_handler)
 
     log.info('Stash plugin: Ready')
 
