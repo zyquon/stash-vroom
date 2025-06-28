@@ -103,7 +103,7 @@ def set_ffmpeg_wrapper(action):
     parallelTasks = res['configuration']['general']['parallelTasks']
     log.debug(f'argv: {sys.argv!r}')
 
-    if action == 'enable':
+    # if action == 'enable':
     #     from stash_vroom.ffmpeg_wrapper import enable_ffmpeg_wrapper
     #     enable_ffmpeg_wrapper()
     #     stash_log.info('FFmpeg wrapper enabled')
@@ -111,8 +111,8 @@ def set_ffmpeg_wrapper(action):
     #     from stash_vroom.ffmpeg_wrapper import disable_ffmpeg_wrapper
     #     disable_ffmpeg_wrapper()
     #     stash_log.info('FFmpeg wrapper disabled')
-    else:
-        raise ValueError(f'Unknown FFmpeg wrapper action: {action}')
+    # else:
+    #    # raise ValueError(f'Unknown FFmpeg wrapper action: {action}')
 
 if __name__ == '__main__':
     main()
