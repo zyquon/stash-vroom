@@ -3,9 +3,10 @@ description: HereSphere support for browsing and viewing VR videos
 version: 0.1.0
 url: https://zyquon.github.io/stash-vroom/
 ui:
-  requires: 
-  - stashUserscriptLibrary
+  # requires: 
+  # - CommunityScriptsUILibrary
   javascript:
+  # - https://cdn.jsdelivr.net/npm/graphql-ws@5/umd/graphql-ws.min.js
   - plugin/js/stash-vroom.js
 settings:
   skipDependencyCheck:
