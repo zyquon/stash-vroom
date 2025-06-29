@@ -3,7 +3,8 @@
 import Button from "./components/Button/Button"
 
 export default () => {
-  console.log(Button())
+  console.log(`Testing things. Hello world!`)
+  // console.log(Button())
 }
 
 // To obtain type support for PluginApi.libraries, simply install its respective "@types/library" or the library itself.
