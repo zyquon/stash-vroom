@@ -1,5 +1,5 @@
 {
   "outDir": "dist",
-  "stashPluginSubDir": "my-plugins-dev",
-  "include": ["README.md"]
+  "stashPluginSubDir": "dev",
+  "include": []
 }

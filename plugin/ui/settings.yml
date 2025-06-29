@@ -1,22 +1,18 @@
-id: VRoom
 name: VRoom
 description: HereSphere support for browsing and viewing VR videos
 version: 0.1.0
 url: https://zyquon.github.io/stash-vroom/
-stashPluginSubDir: my-plugins-dev
 ui:
   # css: ./styles/main.css
-  # include: # external js and css files that aren't part of the main ui files
-  #   - ./lib/colors.js
-  #   - ./scripts/injectRemoteCode.js
-  # requires:
-  #   - MyUtilsLibrary # local plugin id
-  #   # There is some other cross-source thing I could look into
   javascript: ./src/index.jsx
     # - https://cdn.jsdelivr.net/npm/graphql-ws@5/umd/graphql-ws.min.js
     # - plugin/js/stash-vroom.js
+  # requires:
+  #   - MyUtilsLibrary # local plugin id
+  #   # There is some other cross-source thing I could look into
   # assets:
   #   /: assets
+  #   urlPrefix: fsLocation
   # csp: # content security policy overrides
   #   script-src:
   #     - http://alloweddomain.com
@@ -24,15 +20,28 @@ ui:
   #     - http://alloweddomain.com
   #   connect-src:
   #     - http://alloweddomain.com
-# include: # include external files
+
+  # # Stash builder:
+  # include: # external js and css files that aren't part of the main ui files
+  #   - ./lib/colors.js
+  #   - ./scripts/injectRemoteCode.js
+
+#
+# Stash builder configs
+#
+
+id: VRoom
+stashPluginSubDir: dev
+include: # include external files
+  - ../../plugin/*
 #   - ./assets
 #   - ./python/foo.py
 #   - ./configs/*
-externalPath:
-    - /plugin/MyPlugin/assets/background.png # tell esbuild, its a external path and not a file path
+# externalPath:
+#     - /plugin/MyPlugin/assets/background.png # tell esbuild, its a external path and not a file path
 
 #
-# Default plugin.yml structure and they are used for plugin tasks
+# Default Stash plugin.yml
 #
 
 settings:
