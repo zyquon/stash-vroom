@@ -44,6 +44,20 @@ include: # include external files
 # Default Stash plugin.yml
 #
 
+tasks:
+  - name: Run HereSphere server
+    description: Start the HereSphere server to browse and view VR videos
+  - name: Enable FFmpeg for VR
+    description: Cropped 2D covers, previews, and sprites for scenes tagged VR
+    defaultArgs:
+      task: ffmpeg-wrapper
+      action: enable
+  - name: Disable FFmpeg for VR
+    description: Restore your original ffmpeg and parallel tasks
+    defaultArgs:
+      task: ffmpeg-wrapper
+      action: disable
+
 settings:
   a_vrTagName:
     displayName: VRoom Tag Name
@@ -73,16 +87,3 @@ exec:
   - python
   - "{pluginDir}/plugin/start.py"
 interface: raw
-tasks:
-  - name: Run HereSphere server
-    description: Start the HereSphere server to browse and view VR videos
-  - name: Enable FFmpeg for VR
-    description: Cropped 2D covers, previews, and sprites for scenes tagged VR
-    defaultArgs:
-      task: ffmpeg-wrapper
-      action: enable
-  - name: Disable FFmpeg for VR
-    description: Restore your original ffmpeg and parallel tasks
-    defaultArgs:
-      task: ffmpeg-wrapper
-      action: disable
