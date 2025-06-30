@@ -48,7 +48,10 @@ def main():
     server_connection = json_input['server_connection']
     plugin_dir = server_connection['PluginDir']
 
-    log_file = f'{plugin_dir}/plugin/log/vroom-log.txt'
+    log_dir = f'{plugin_dir}/plugin/log'
+    log_file = f'{log_dir}/vroom-log.txt'
+    os.makedirs(log_dir, exist_ok=True)
+
     file_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)

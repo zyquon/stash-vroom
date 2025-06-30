@@ -29,7 +29,7 @@ stash_log.debug('VRoom step 2: Dependencies')
 json_input = util.get_stash_input()
 plugin_dir = json_input['server_connection']['PluginDir']
 venv_dir = f'{plugin_dir}/venv-stash'
-runner_py = f'{plugin_dir}/plugin/runner.py'
+runner_py = f'{plugin_dir}/runner.py'
 
 # Attempt to ascertain if the plugin setting `skipDependencyCheck` is true. If so, skip. If anything goes wrong, proceed with the dependency check.
 skip_check = False
@@ -47,7 +47,7 @@ except Exception as e:
 if skip_check:
     stash_log.debug(f'Skip dependency check and upgrade')
 else:
-    # stash_log.info(f'Install dependencies: {venv_dir}')
+    stash_log.debug(f'Install dependencies: {venv_dir}')
     try:
         result = subprocess.run(
             [f'{venv_dir}/bin/pip', 'install', '-e', plugin_dir],
@@ -58,6 +58,8 @@ else:
     except subprocess.CalledProcessError as e:
         stash_log.error(f'Failed to install dependencies: {e}')
         sys.exit(1)
+    else:
+        stash_log.debug(f'Good pip install')
     finally:
         # stash_log.info(f'Pip install stdout: {result.stdout!r}')
         if result and result.stderr:
@@ -66,9 +68,7 @@ else:
 stash_log.debug(f'Start HereSphere runner in the background')
 background_process = subprocess.Popen(
     [f'{venv_dir}/bin/python', runner_py],
-    # stdout=subprocess.DEVNULL,  # Redirect stdout to avoid clutter
     stdout=sys.stdout,           # Redirect stdout to the parent process
-    # stderr=subprocess.DEVNULL,  # Redirect stderr to avoid clutter
     stderr=sys.stderr,           # Redirect stderr to the parent process
     # start_new_session=True,     # Detach the process from the parent
     start_new_session=False,    # Keep the process in the same session

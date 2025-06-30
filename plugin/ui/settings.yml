@@ -1,3 +1,4 @@
+id: VRoom
 name: VRoom
 description: HereSphere support for browsing and viewing VR videos
 version: 0.1.0
@@ -10,9 +11,10 @@ ui:
   # requires:
   #   - MyUtilsLibrary # local plugin id
   #   # There is some other cross-source thing I could look into
-  # assets:
-  #   /: assets
-  #   urlPrefix: fsLocation
+  assets:
+    # urlPrefix: fsLocation
+    /docs: docs
+    /static: static
   # csp: # content security policy overrides
   #   script-src:
   #     - http://alloweddomain.com
@@ -30,12 +32,18 @@ ui:
 # Stash builder configs
 #
 
-id: VRoom
 stashPluginSubDir: dev
 include: # include external files
-  - ../../plugin/*
+  - static/
+  - ../py/*
+  - ../../LICENSE
+  - ../../README.md
+  - ../../docs
+  - ../../pyproject.toml
+  - ../../setup.cfg
+  - ../../setup.py
+  - ../../stash_vroom
 #   - ./assets
-#   - ./python/foo.py
 #   - ./configs/*
 # externalPath:
 #     - /plugin/MyPlugin/assets/background.png # tell esbuild, its a external path and not a file path
@@ -85,5 +93,5 @@ settings:
     type: BOOLEAN
 exec:
   - python
-  - "{pluginDir}/plugin/start.py"
+  - "{pluginDir}/start.py"
 interface: raw
