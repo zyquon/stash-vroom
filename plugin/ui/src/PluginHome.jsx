@@ -86,6 +86,20 @@ export default () => {
   return <>
     <h1>Stash VRoom</h1>
     <SetDefaultConfig vroom_config={vroom_config} />
+
+    {/* This doesn't work due to a hard-coded CSP child-src 'none' in Stash */}
+    {/*
+    <iframe
+      src={`/plugin/${PLUGIN_ID}/assets/docs/index.html`}
+      style={{
+        width: "100%",
+        height: "calc(100vh - 60px)",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+      }}
+      title="VRoom Documentation"
+    />
+    */}
   </>
 
   // TODO:
