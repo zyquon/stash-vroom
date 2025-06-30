@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8">
     <title>Stash VRoom placeholder</title>
-    <meta http-equiv="refresh" content="0; url=/#/vroom">
   </head>
   <body>
     <h1>Stash VRoom Development Placeholder</h1>
@@ -14,7 +13,11 @@
         </p>
     </div>
     <script>
-      window.location.href = '/#/vroom';
+        // Redirect to the root ("/") but with any current path put after a #, so /path/to/something becomes /#/path/to/something
+        const currentPath = window.location.pathname + window.location.search // + window.location.hash
+        const newPath = `/#${currentPath}`
+        console.log(`Redirect: ${newPath}`)
+        window.location.replace(newPath)
     </script>
   </body>
 </html>
