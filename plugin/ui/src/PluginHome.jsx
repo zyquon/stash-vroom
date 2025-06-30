@@ -4,6 +4,8 @@ const PluginApi = window.PluginApi
 // const GQL = PluginApi.GQL
 const StashService = PluginApi.utils.StashService
 
+const PLUGIN_ID = `VRoom`
+
 // const PlusIcon = PluginApi.libraries.FontAwesomeSolid.faPlus;
 const config_defaults = {
   a_vrTagName: "VR",
@@ -44,7 +46,7 @@ const SetDefaultConfig = ({ vroom_config }) => {
   }
   updatePluginConfig({
     variables: {
-      plugin_id: "VRoom",
+      plugin_id: PLUGIN_ID,
       input: new_config,
     },
   })
