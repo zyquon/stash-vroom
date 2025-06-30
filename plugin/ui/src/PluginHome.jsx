@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 
 const PluginApi = window.PluginApi
 // const GQL = PluginApi.GQL
@@ -6,7 +6,7 @@ const StashService = PluginApi.utils.StashService
 
 const PLUGIN_ID = `VRoom`
 
-// const PlusIcon = PluginApi.libraries.FontAwesomeSolid.faPlus;
+// const PlusIcon = PluginApi.libraries.FontAwesomeSolid.faPlus
 const config_defaults = {
   a_vrTagName: "VR",
   b_skipDependencyCheck: false,
@@ -69,7 +69,7 @@ export default () => {
   // }
   console.log(`Stash VRoom: render`)
 
-  const { LoadingIndicator } = PluginApi.components;
+  const { LoadingIndicator } = PluginApi.components
   const qConfig = StashService.useConfiguration()
 
   if ( qConfig.loading ) {
@@ -86,29 +86,7 @@ export default () => {
   return <>
     <h1>Stash VRoom</h1>
     <SetDefaultConfig vroom_config={vroom_config} />
-
-    {/* This doesn't work due to a hard-coded CSP child-src 'none' in Stash */}
-    {/*
-    <iframe
-      src={`/plugin/${PLUGIN_ID}/assets/docs/index.html`}
-      style={{
-        width: "100%",
-        height: "calc(100vh - 60px)",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-      title="VRoom Documentation"
-    />
-    */}
   </>
-
-  // TODO:
-  // I think just return if it's loading. Then if it's updating return an updating content.
-  // Might have to call some kind of reloadconfig helper if the qConfig does not reflect the updated settings.
-  // const [ready, setReady] = React.useState()
-  // Also for debugging maybe render a button that clicking does the update, to avoid the infinite loops
-  // Or maybe there is a dedicated component called SetDefaults or something and it can just do the update
-  // logic and render out a string of its state or something
 }
 
 const get_vroom_config = (stash_config, is_local=false) => {
@@ -167,83 +145,3 @@ const get_vroom_config_default_updates = (vroom_config) => {
     new_config[key] = update[key]
   return new_config
 }
-
-  // const [loading, setLoading] = React.useState(true);
-  // const [error, setError] = React.useState<Error | null>(null);
-  // const [code, setCode] = React.useState(sql);
-  // const [columns, setColumns] = React.useState([]);
-  // const [rows, setRows] = React.useState([]);
-  // const [querySQL, { loading, error }] = useQuerySQLMutation({
-  //   onCompleted: (data) => {
-  //     if (data?.querySQL) {
-  //       setColumns(data.querySQL.columns);
-  //       setRows(data.querySQL.rows);
-  //     } else {
-  //       setColumns([]);
-  //       setRows([]);
-  //     }
-  //   },
-  //   onError: () => {
-  //     setColumns([]);
-  //     setRows([]);
-  //   },
-  // });
-
-  // const submitQuery = () => {
-  //   try {
-  //     querySQL({ variables: { sql: code } });
-  //   } catch (e) {
-  //     console.error("Failed to decode or query SQL:", e);
-  //   }
-  // };
-
-  // function classNames(...classes) {
-  //   return classes.filter(Boolean).join(" ");
-  // }
-
-  // return (
-  //   <div className="px-4 sm:px-6 lg:px-8 mb-16">
-  //     <div className="sm:flex sm:items-center">
-  //       <div className="sm:flex-auto">
-  //         <h1 className="text-base font-semibold text-gray-50">
-  //           Stash VRoom
-  //         </h1>
-  //       </div>
-  //       <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-2/3">
-  //         Editor goes here
-  //         {/* <Editor
-  //           value={code}
-  //           onValueChange={(code) => setCode(code)}
-  //           highlight={(code) => highlight(code, languages.sql, "sql")}
-  //           padding={10}
-  //           className="editor"
-  //         /> */}
-  //       </div>
-  //     </div>
-
-  //     <div className="flex justify-end mt-4">
-  //       {/* <button disabled={loading}>
-  //         <PlusIcon />
-  //         {loading ? "Running..." : "Submit Query"}
-  //       </button> */}
-  //       <Button className="minimal d-flex align-items-center h-100 btn btn-primary" title="Loading: {loading}">
-  //         XXX
-  //       </Button>
-  //     </div>
-
-  //     {error && (
-  //       <div className="my-4 p-4 bg-red-800/20 ring-1 ring-red-500 rounded-lg text-red-300">
-  //         <h3 className="font-bold">Error</h3>
-  //         <pre className="whitespace-pre-wrap">{error.message}</pre>
-  //       </div>
-  //     )}
-
-  //     <div className="relative -mx-4 mt-10 ring-1 ring-stash-700 sm:mx-0 sm:rounded-lg text-lg text-gray-50 bg-stash-600 shadow-lg shadow-stash-900">
-  //       {loading && (
-  //         <div className="absolute inset-0 bg-stash-800/50 flex items-center justify-center rounded-lg">
-  //           <LoadingIndicator />
-  //         </div>
-  //       )}
-  //     </div>
-  //   </div>
-  // );
