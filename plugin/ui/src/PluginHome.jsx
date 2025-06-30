@@ -1,4 +1,6 @@
-import React from "react";
+import React from "react"
+import parse from 'html-react-parser'
+import DOMPurify from "dompurify"
 
 const PluginApi = window.PluginApi
 // const GQL = PluginApi.GQL
@@ -59,6 +61,52 @@ const SetDefaultConfig = ({ vroom_config }) => {
   return null
 }
 
+const Documentation = () => {
+  const [content, setContent] = React.useState(null)
+  const [inFlight, setInFlight] = React.useState(false)
+
+  if ( !content ) {
+    if (! inFlight) {
+      // Fetch the HTML and then 
+      setInFlight(true)
+      fetch(`/plugin/${PLUGIN_ID}/assets/docs/index.html`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch documentation: ${response.statusText}`);
+          }
+          return response.text();
+        })
+        .then((html) => {
+          const allowed_tags = [
+            "a", "p", "h1", "h2", "h3", "h4", "h5", "h6",
+            "body",
+            "ul", "ol", "li", "strong", "em", "code", "pre",
+            "blockquote", "div", "span", "table", "thead", "tbody",
+            "tr", "th", "td", "img", "br", "hr",
+            "dl", "dt", "dd", "section", "article",
+            "nav", "aside", "header", "footer",
+          ]
+          // const sanitizedHtml = DOMPurify.sanitize(html, { ALLOWED_TAGS: ["a", "p", "h1", "h2", "h3", "ul", "li", "strong", "em"] });
+          // Allow all the tags that Sphinx uses when generating python documentation.
+          let sanitizedHtml = DOMPurify.sanitize(html, { ALLOWED_TAGS: allowed_tags, ALLOWED_ATTR: ["href", "src", "alt", "title", "class"] })
+          // sanitizedHtml = `<div>Hello world</div>`
+          console.log(`Sanitized HTML:`, sanitizedHtml)
+          const safeTree = parse(sanitizedHtml)
+          console.log(`Parsed HTML tree:`, safeTree)
+          setContent(safeTree);
+          setInFlight(false);
+        })
+    }
+
+    return <div>Loading documentation...</div>
+  }
+
+  console.log(`Okay the content is:`, content)
+  return <div className="documentation-content">
+    {content}
+  </div>
+}
+
 export default () => {
   // For a reason I do not know, PerformerSelect works but LoadingIndicator does not. Scene works as does SceneCard
   // Maybe the usable ones are here: https://github.com/stashapp/stash/blob/develop/ui/v2.5/src/pluginApi.tsx
@@ -87,19 +135,7 @@ export default () => {
     <h1>Stash VRoom</h1>
     <SetDefaultConfig vroom_config={vroom_config} />
 
-    {/* This doesn't work due to a hard-coded CSP child-src 'none' in Stash */}
-    {/*
-    <iframe
-      src={`/plugin/${PLUGIN_ID}/assets/docs/index.html`}
-      style={{
-        width: "100%",
-        height: "calc(100vh - 60px)",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-      title="VRoom Documentation"
-    />
-    */}
+    <Documentation />
   </>
 
   // TODO:

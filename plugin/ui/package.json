@@ -13,5 +13,10 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "stash-plugin-builder": "^1.0.3"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.6",
+    "html-react-parser": "^5.2.5",
+    "react": "^19.1.0"
   }
 }
