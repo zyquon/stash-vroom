@@ -2,7 +2,6 @@
 console.log(`Stash-VRoom Plugin UI start`)
 
 const PluginApi = window.PluginApi;
-const GQL = PluginApi.GQL;
 const React = PluginApi.React;
 const { Button } = PluginApi.libraries.Bootstrap;
 const { NavLink } = PluginApi.libraries.ReactRouterDOM;
@@ -11,7 +10,7 @@ const { faVrCardboard } = PluginApi.libraries.FontAwesomeSolid;
 const STATIC_AND_REACT_PATH = `/plugin/VRoom/assets/static/VRoom.html`;
 
 // import MainNavBar from "./components/MainNavBar";
-import PluginHome from "./PluginHome.tsx"
+import PluginHome from "./PluginHome.jsx"
 
 const Bounce = (props) => {
   const { useHistory } = PluginApi.libraries.ReactRouterDOM
@@ -25,16 +24,15 @@ export default () => {
 
   PluginApi.register.route(STATIC_AND_REACT_PATH, PluginHome)
 
-  PluginApi.patch.after('App', (props, _, original) => {
-    const match = (window.location.hash || "").match(/^#\/(.*)/)
+  PluginApi.patch.instead('App', (props, _, Original) => {
+    const match = (window.location.hash || "").match(/^#(\/.*)$/)
     if (match) {
-      debugger
       const new_path = match[1];
       console.log(`Redirect from hash: ${window.location.hash} to path: ${new_path}`);
       return <Bounce to={new_path} />
     }
 
-    return original
+    return [ <Original {...props} /> ]
   })
 
   PluginApi.patch.before("MainNavBar.UtilityItems", (props) => [
