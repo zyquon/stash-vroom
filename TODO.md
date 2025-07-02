@@ -9,6 +9,7 @@ Features
 ========
 
 1. The ffmpeg wrapper should connect in to Stash and update its parameters for screenshot or preview of SBS or TB VR
+1. A FAQ about flat video. It works. Either make FLAT a sub-tag of VR or else make a HereSphere tag the parent of both VR and FLAT
 1. Maybe a task to "activate" the VR ffmpeg and warn the user this forces the queue size to 1
 1. Serving images to HS by maybe streaming or creating a temporary video file with ffmpeg (done in my personal project)
 1. If it is truly easy, the plugin may need to display a link for them to click or paste to HereSphere or something, instead of asking the user to figure out their hostname and URL. Maybe it's a page with
