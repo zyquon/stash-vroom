@@ -71,10 +71,10 @@ settings:
     displayName: Read Write Mode
     description: Allow HereSphere updating Stash, including favorites, stars, tags, and view history
     type: BOOLEAN
-  b_skipDependencyCheck:
-    displayName: Skip dependency check
-    description: Do not confirm and upgrade all dependencies as needed
-    type: BOOLEAN
+  b_savedFilterPrefix:
+    displayName: Saved Filter Prefix
+    description: Optional comma-separated prefixes; if set, only saved filters named "prefix | name" will appear in HereSphere as "name"
+    type: STRING
   c_doImages:
     displayName: Support images
     description: Support images by streaming "1-frame videos" to HereSphere
@@ -90,6 +90,10 @@ settings:
   f_markerSurfingRandom:
     displayName: "Marker surfing: Use random start times"
     description: False means marker start times are normal. True means choose a random time slice (of the given duration)
+    type: BOOLEAN
+  g_skipDependencyCheck:
+    displayName: Skip dependency check
+    description: Do not confirm and upgrade all dependencies as needed
     type: BOOLEAN
 exec:
   - python
