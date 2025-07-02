@@ -19,20 +19,20 @@ export const callGQL = (query, variables=null) => {
 export const useGQL = (query, variables=null) => {
     const [data, setData] = React.useState(null)
     const [error, setError] = React.useState(null)
-    const [loading, setLoading] = React.useState(true)
+    const [ready, setReady] = React.useState(false)
 
     React.useEffect(() => {
-        setLoading(true)
+        setReady(false)
         callGQL(query, variables)
             .then(data => {
                 setData(data)
-                setLoading(false)
+                setReady(true)
             })
             .catch(err => {
                 setError(err)
-                setLoading(false)
+                setReady(true)
             })
     }, [query, JSON.stringify(variables)])
 
-    return { data, error, loading }
+    return { data, error, ready }
 }

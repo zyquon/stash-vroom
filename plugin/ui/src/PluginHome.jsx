@@ -3,7 +3,7 @@ import React from "react"
 const PluginApi = window.PluginApi
 const StashService = PluginApi.utils.StashService
 
-const { Badge } = PluginApi.libraries.Bootstrap
+const { Badge, Container } = PluginApi.libraries.Bootstrap
 const { Link, NavLink } = PluginApi.libraries.ReactRouterDOM
 
 // Import the useGQL helper function which is exported from ./lib/gql.js.
@@ -19,11 +19,12 @@ const PLUGIN_NAME = `VRoom`
 // const PlusIcon = PluginApi.libraries.FontAwesomeSolid.faPlus
 const CONFIG_DEFAULTS = {
   a_readWrite: false,
-  b_skipDependencyCheck: false,
+  b_savedFilterPrefix: ``,
   c_doImages: false,
   d_doMarkerSurfing: false,
   e_markerSurfingDuration: 15,
   f_markerSurfingRandom: false,
+  g_skipDependencyCheck: false,
 }
 
 const get_my_config = (stash_config, strip_prefix=false) => {
@@ -71,8 +72,7 @@ export default () => {
   const my_config = useMyConfig()
   console.log(`Current vroom config:`, my_config)
 
-  const { Container } = PluginApi.libraries.Bootstrap
-  return <Container style={{ fontSize: `1.2em` }}>
+  return <Container style={{ fontSize: `1.1em` }}>
     <h1>Stash VRoom</h1>
     <Config my_config={my_config} />
     <Operation config={my_config} />
@@ -115,42 +115,117 @@ const Operation = ({ config }) => {
     return null
 
   const cfg = strip_prefix(config)
-  const { ready: main_tag_ready, tag: main_tag } = useMainTag({ name: cfg._vrTag })
+  // const { ready: main_tag_ready, tag: main_tag } = useMainTag({ name: cfg._vrTag })
 
-  const followup = ( cfg && main_tag_ready && main_tag ) && <>
-    <ReadWrite config={config} />
-    <Startup config={config} />
-    <MarkerSurfing config={config} />
-  </>
+  // const followup = ( cfg && main_tag_ready && main_tag ) && <>
+  //   <ReadWrite config={cfg} />
+  //   <Startup config={cfg} />
+  //   <MarkerSurfing config={cfg} />
+  // </>
 
   return <div>
     {/* <h4>Operation Mode</h4> */}
     <div>
-      { config && main_tag_ready ? <Scope config={config} main_tag={main_tag} /> : null }
+      { config && <Scope config={cfg} /> }
       {/* {followup} */}
       <pre>{JSON.stringify(cfg, null, 2)}</pre>
     </div>
   </div>
 }
 
-const Scope = ({ config, main_tag }) => {
-  const media = config.doImages ? `scenes and images` : `scenes but not images`
+const Scope = ({ config }) => {
+  return <>
+    <SceneScope config={config} />
+    <ImageScope config={config} />
+    <p>
+      Change this by changing the <em>Support Images</em> in <Link to="/settings?tab=plugins">Plugin Settings</Link>.
+    </p>
+  </>
+}
 
-  let tags
-  if (! main_tag) {
-    if (! config._vrTag)
-      tags = <>no tag configured</>
+const SceneScope = ({ config }) => {
+  return null
+}
+
+const ImageScope = ({ config }) => {
+  return config.doImages
+    ? <ImageFilters config={config} />
+    : <p>{PLUGIN_NAME} <strong>will not</strong> serve images.</p>
+}
+
+const ImageFilters = ({ config }) => {
+  const query = `
+    query Filters($mode: FilterMode!) {
+      findSavedFilters(mode: $mode) {
+        id
+        mode
+        name
+      }
+    }`
+  const get_filters = useGQL(query, { mode: `IMAGES` })
+
+  if (! get_filters.ready || !get_filters.data)
+    return null
+
+  const filters = get_exported_saved_filters(get_filters.data.findSavedFilters, config.savedFilterPrefix)
+  console.log(`Found image filters:`, filters)
+
+  // If a prefix is configured, split it by /\s*,\s*/ and tell the user of them all.
+  let note = <>Note, all saved filters are used (no prefix is configured).</>
+
+  if (config.savedFilterPrefix.trim()) {
+    const prefixes = config.savedFilterPrefix.split(/\s*,\s*/)
+    const must = (prefixes.length > 1)
+      ? `must have any of the prefixes`
+      : `must have the prefix`
+    
+    const repr_prefix = (prefixes.length == 1)
+      ? <tt>{prefixes[0]}</tt>
+      // Otherwise list them but with the word ", or " before the last one.
+      : <tt>{prefixes.slice(0, -1).map(x => `${x} | `).join(`, `)}, or {prefixes.slice(-1)} | </tt>
+    
+    note = <>Note, all saved filters {must} {repr_prefix}.</>
   }
+
+  if (filters.length == 0)
+    return <p>
+      {PLUGIN_NAME} <strong>will not</strong> serve images. Although images are enabled, no saved image filters are exported. {note}
+    </p>
 
   return <>
     <p>
-      {PLUGIN_NAME} will serve <strong>{media}</strong>
-       tagged <Tag name={config._vrTag} /> <SubTags name={config._vrTag} />.
+      {PLUGIN_NAME} <strong>will</strong> serve images. HereSphere will have {filters.length} image views:
     </p>
+    <ul>
+      {filters.map((f) => {
+        return <li key={f.id}><tt>{f.name}</tt></li>
+      })}
+    </ul>
     <p>
-      Change this by changing the <em>VR Tag</em> in <Link to="/settings?tab=interface">Interface Settings</Link>.
+      {note}
     </p>
   </>
+  /* tagged <Tag name={config._vrTag} /> <SubTags name={config._vrTag} />. */
+}
+
+const get_exported_saved_filters = (filters, prefix) => {
+  if (!prefix || !prefix.trim())
+    return filters
+
+  const prefixes = prefix.split(/\s*,\s*/)
+  const starts = prefixes.map(p => p.trim() + ` | `)
+
+  // Create a list `matching_filters` of all filters where .name starts with any of the `starts` prefixes.
+  const ok_filters = filters
+    .map(f => {
+      for (const start of starts)
+        if (f.name.startsWith(start))
+          return { ...f, name: f.name.slice(start.length) } // Strip the prefix from the name.
+      return null
+    })
+    .filter(f => !!f)
+
+  return ok_filters
 }
 
 const Tag = ({ name }) => {
@@ -177,7 +252,7 @@ const Tag = ({ name }) => {
       return <><strong>wrong</strong> because no tag name is configured in Interface Settings</>
   }
 
-  if (!get_id.loading && get_id.data ) {
+  if (get_id.ready && get_id.data ) {
     const found_tags = get_id.data.findTags.tags
     if (found_tags.length > 0)
       setTagId(found_tags[0].id)
@@ -213,7 +288,7 @@ const SubTags = ({ name }) => {
   }
 
   const loading = <>(loading sub-tasks...)</>
-  if (get_tags.loading || !get_tags.data)
+  if (!get_tags.ready || !get_tags.data)
     return loading
 
   const main_tag = get_tags.data.findTags.tags[0]
@@ -335,7 +410,8 @@ const SetDefaultConfig = ({ my_config }) => {
   if ( update_query.called ) {
     const label = update_query.loading ? `updating` : `done`
     // I think the done state will not be reached because the new_config will be falsy indicating no needed changes.
-    return <div>Config: {label}...</div>
+    // return <div>Config: {label}...</div>
+    return null
   }
 
   // Otherwise call it
