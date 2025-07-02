@@ -67,10 +67,10 @@ tasks:
       action: disable
 
 settings:
-  a_vrTagName:
-    displayName: VRoom Tag Name
-    description: VRoom will share to HereSphere all videos having this tag or its sub-tags (default "VR")
-    type: STRING
+  a_readWrite:
+    displayName: Read Write Mode
+    description: Allow HereSphere updating Stash, including favorites, stars, tags, and view history
+    type: BOOLEAN
   b_skipDependencyCheck:
     displayName: Skip dependency check
     description: Do not confirm and upgrade all dependencies as needed
