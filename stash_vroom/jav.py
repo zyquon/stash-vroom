@@ -93,6 +93,9 @@ def match_jav_filename(filename):
 
     fname = re.sub(r'\.180\.LR\b'                  , ''        , fname, flags=re.IGNORECASE)
 
+    # Depth Anything output.
+    fname = re.sub(r'\bdiv-\d+\.\d+ con-\d+\.\d+ fg-\d+\.\d+ ipd-\d+\b', '', fname, flags=re.IGNORECASE)
+
     # Fix all the WVR variants first.
     #fname = re.sub(r'^wvr0(\d)'                    , r'WVR1-\1', fname, flags=re.IGNORECASE)
     fname = re.sub(r'^WVR-10*?(\D)'                 , r'WVR1\1', fname, flags=re.IGNORECASE)
