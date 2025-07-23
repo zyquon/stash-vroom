@@ -17,7 +17,11 @@ def test_get_jav_info():
         ('wankzvr-example-180_180x180_3dh_LR.mp4'      , None),
         ('SLR-AsianSexVR-Title-1920p-48493-LR-180.mp4' , None),
         ('[8K]Some.Person.TA.Directors.Cut.180.LR.mp4' , None),
+        
+        # Some Depth Anything output files
         ('tr 0123-4567-89fe-dcba Depth Anything div-5.0 con-0.0 fg-2.0 ipd-15._LRF.mp4', None),
+        ('scene-25339.slider-.6 100d-3846-0b73-2af7 Portrait div-5.0 con-0.0 fg-1.0 ipd-8._LRF.mp4', None),
+
         ('TMAVR-200-1.SLR_TMAVR_Filename Part 1_2160p_47574_LR_180.mp4', ('TMAVR', '-', '200', '1')),
         ('CAFR-219.SLR_CasanovA_Example Title_1920p_1234_LR_180.mp4'   , ('CAFR' , '-', '219', '' )),
 
