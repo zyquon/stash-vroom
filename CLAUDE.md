@@ -42,7 +42,10 @@ cd doc && make html
 ```
 
 **Generate GraphQL client:**
-Uses `ariadne-codegen` to generate the Stash GraphQL client from `stash_vroom/queries.graphql`
+```bash
+ariadne-codegen
+```
+Regenerates the Stash GraphQL client in `stash_vroom/stash_client/` from `stash_vroom/queries.graphql`. Requires a running Stash instance at `http://localhost:9999` and `STASH_API_KEY` environment variable set.
 
 ## Architecture
 
