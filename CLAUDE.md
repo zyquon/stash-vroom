@@ -4,9 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Stash VRoom is a Python library and Stash plugin that provides HereSphere support for Stash VR content. It serves as a bridge between Stash (a media organizer) and HereSphere (a VR video player), allowing users to browse their VR collection through HereSphere's interface.
+Stash VRoom is a multi-language library (Python and TypeScript) and Stash plugin that provides HereSphere support for Stash VR content. It serves as a bridge between Stash (a media organizer) and HereSphere (a VR video player), allowing users to browse their VR collection through HereSphere's interface.
+
+The project provides utilities in both Python (`stash_vroom/`) and TypeScript (`js/`) for detecting and parsing VR video file formats (JAV, SLR).
 
 ## Build System and Dependencies
+
+### Python (`stash_vroom/`)
 
 - Uses `setuptools` with both `pyproject.toml` and `setup.cfg` configuration
 - Python 3.6+ required
@@ -14,7 +18,14 @@ Stash VRoom is a Python library and Stash plugin that provides HereSphere suppor
 - Dev dependencies: `ariadne-codegen>=0.14.0`, `pytest>=8.3`
 - Documentation: `sphinx>=4.0.0`, `sphinx-autobuild`
 
-### Common Commands
+### TypeScript (`js/`)
+
+- npm package named `stash-vroom`
+- ES modules (`"type": "module"`)
+- Dev dependencies: `typescript>=5.3.0`, `vitest>=2.0.0`
+- Builds to `js/dist/` with `.js` and `.d.ts` type declarations
+
+### Common Commands (Python)
 
 **Install package in development mode:**
 ```bash
@@ -47,9 +58,32 @@ ariadne-codegen
 ```
 Regenerates the Stash GraphQL client in `stash_vroom/stash_client/` from `stash_vroom/queries.graphql`. Requires a running Stash instance at `http://localhost:9999` and `STASH_API_KEY` environment variable set.
 
+### Common Commands (TypeScript)
+
+**Install dependencies:**
+```bash
+cd js && npm install
+```
+
+**Run tests:**
+```bash
+cd js && npm test
+```
+
+**Run tests in watch mode:**
+```bash
+cd js && npm run test:watch
+```
+
+**Build package:**
+```bash
+cd js && npm run build
+```
+Compiles TypeScript to `js/dist/` with type declarations.
+
 ## Architecture
 
-### Core Modules
+### Core Modules (Python)
 
 **`stash_vroom/heresphere.py`** - Main Flask-like interface for building HereSphere services
 - Provides decorators for handling HereSphere events (`on_play`, `on_pause`, `on_stars`, etc.)
@@ -82,6 +116,24 @@ Regenerates the Stash GraphQL client in `stash_vroom/stash_client/` from `stash_
 - `plugin/py/runner.py` - Main plugin entry point
 - `plugin/ui/` - React-based UI components for Stash plugin interface
 
+### Core Modules (TypeScript)
+
+**`js/src/jav.ts`** - JAV file detection and parsing (TypeScript port of `jav.py`)
+- `getJavInfo(filepath)` - Extract JAV metadata from filename
+- `getIsJav(filepath)` - Check if file is a JAV
+- `matchJavFilename(filename)` - Low-level regex matching
+
+**`js/src/slr.ts`** - SLR network file detection (TypeScript port of `slr.py`)
+- `getSlrInfo(filepath)` - Extract SLR metadata from filename
+- `getIsSlr(filepath)` - Check if file is an SLR download
+- `getSlrRe(options)` - Generate SLR matching regex
+
+**`js/src/util.ts`** - Common utilities
+- `getVidRe(extensions)` - Video file extension regex
+- `basename(filepath)` - Cross-platform path basename
+
+**`js/src/index.ts`** - Public API re-exports all modules
+
 ### Data Flow
 
 1. **Stash Integration**: Plugin connects to Stash GraphQL API using generated client
@@ -98,11 +150,18 @@ Regenerates the Stash GraphQL client in `stash_vroom/stash_client/` from `stash_
 
 ## Testing
 
+### Python Tests
+
 Tests are in `tests/` directory:
 - `tests_jav.py` - JAV filename parsing tests with extensive test cases
 - `tests_util.py` - Utility function tests
 
-Test files include comprehensive examples of expected JAV filename patterns and edge cases.
+### TypeScript Tests
+
+Tests are in `js/tests/` directory:
+- `jav.test.ts` - JAV filename parsing tests (mirrors `tests_jav.py`)
+
+Both test suites cover the same 38 JAV filename test cases to ensure parity between Python and TypeScript implementations.
 
 ## Documentation
 
