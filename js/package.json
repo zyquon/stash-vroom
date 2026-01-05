@@ -1,0 +1,40 @@
+{
+  "name": "stash-vroom",
+  "version": "0.1.0",
+  "description": "Utilities for VR video file detection and metadata parsing",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "vr",
+    "jav",
+    "stash",
+    "heresphere",
+    "slr"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zyquon/stash-vroom.git",
+    "directory": "js"
+  }
+}
