@@ -16,6 +16,8 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:browser": "node scripts/bundle-browser.js",
+    "build:all": "tsc && node scripts/bundle-browser.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
