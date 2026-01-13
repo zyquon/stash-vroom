@@ -81,6 +81,41 @@ cd js && npm run build
 ```
 Compiles TypeScript to `js/dist/` with type declarations.
 
+**Build browser bundle:**
+```bash
+cd js && npm run build:browser
+```
+Creates `js/dist/stash-vroom.browser.js` - a standalone IIFE bundle for use in browsers and extensions. This file exposes `window.StashVroom` with all exports.
+
+**Build everything:**
+```bash
+cd js && npm run build:all
+```
+Runs both TypeScript compilation and browser bundle generation.
+
+### Browser Bundle
+
+The browser bundle (`js/dist/stash-vroom.browser.js`) is a self-contained file for non-module environments like Chrome extensions. It:
+
+- Combines all modules (util, slr, jav) into a single file
+- Wraps everything in an IIFE to avoid polluting global scope
+- Exposes `window.StashVroom` with these functions:
+  - `getJavInfo(filepath)` - Extract JAV metadata
+  - `getIsJav(filepath)` - Check if file is JAV
+  - `matchJavFilename(filename)` - Low-level JAV regex matching
+  - `getSlrInfo(filepath)` - Extract SLR metadata
+  - `getIsSlr(filepath)` - Check if file is SLR
+  - `getSlrRe(options)` - Generate SLR regex
+  - `getVidRe(extensions)` - Video extension regex
+  - `basename(filepath)` - Cross-platform basename
+
+**Downstream usage (e.g., companion project):**
+```bash
+cp /path/to/stash-vroom/js/dist/stash-vroom.browser.js extension/stash-vroom.js
+```
+
+The browser bundle should be regenerated whenever the TypeScript source changes.
+
 ## Architecture
 
 ### Core Modules (Python)
