@@ -36,7 +36,11 @@ def get_is_jav(filepath):
     return not not get_jav_info(filepath)
 
 def get_jav_info(filepath):
+    if not filepath or not filepath.strip():
+        return None
     filename = os.path.basename(filepath)
+    if not filename or not filename.strip():
+        return None
     mtch = match_jav_filename(filename)
     if not mtch:
         #log.debug(f'  - Not JAV; no regex match')

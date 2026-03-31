@@ -43,6 +43,9 @@ def test_get_jav_info():
         ('WVR-90009 Test VR3D_4K_LR_180.mp4'           , ('WVR9'     , ''  , '009'   , ''    )),
         ('wvr9c018A.VR.mp4'                            , ('WVR9'     , ''  , '018'   , 'A'   )),
         ('wVr9d.078 VR Foo bar - baz 2048p_180_3dh.mp4', ('WVR9'     , '.' , '078'   , ''    )),
+
+        # Empty/whitespace strings should return None
+        (''                                               , None                                 ),
     )
 
     for test in tests:
