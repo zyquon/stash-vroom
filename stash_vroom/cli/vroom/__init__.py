@@ -41,6 +41,10 @@ def _default_docs_context():
     stash_home = os.environ.get('STASH_HOME')
     result['STASH_HOME_STATUS'] = stash_home if stash_home else f'Currently unset, default is {stash_vroom.stash.STASH_HOME}'
 
+    # Base URL for web UI links (GraphQL endpoint minus /graphql suffix)
+    gql_url = stash_url or DEFAULT_STASH_ENDPOINT
+    result['STASH_BASE_URL'] = gql_url.removesuffix('/graphql')
+
     api_key = os.environ.get('STASH_API_KEY')
     if api_key:
         result['STASH_API_KEY_STATUS'] = 'Set'
@@ -423,6 +427,7 @@ def cmd_intro(args):
         'schema': 'schema_intro.md',
         'filters': 'filters_intro.md',
         'mutations': 'mutations_intro.md',
+        'ui-urls': 'ui-urls_intro.md',
     }
     if topic not in topics:
         print(f"Unknown topic: {topic}", file=sys.stderr)
@@ -893,7 +898,7 @@ def build_parser():
 
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')
-    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: schema, filters, mutations')
+    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: schema, filters, mutations, ui-urls')
 
     p_query = sub.add_parser('gql',
         description='Execute an arbitrary GraphQL query and print the result as JSON.',

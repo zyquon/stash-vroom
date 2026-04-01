@@ -39,6 +39,7 @@ Learn More
     vroom intro schema           Overview of query syntax, patterns, examples; best starting point
     vroom intro filters          How saved UI filters work, if the user mentions "filters" or "views" from the UI
     vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
+    vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.
 
 Quick Examples
 --------------
