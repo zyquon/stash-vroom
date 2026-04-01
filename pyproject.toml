@@ -43,6 +43,7 @@ bugs = "https://github.com/zyquon/stash-vroom/issues"
 homepage = "https://github.com/zyquon/stash-vroom"
 
 [tool.setuptools.packages.find]
+exclude = ["tests*", "doc*", "plugin*"]
 
 [tool.setuptools.package-data]
 "stash_vroom.cli.vroom" = ["*.md"]
