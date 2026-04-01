@@ -35,6 +35,7 @@ STASH_HOST = None # os.environ.get('STASH_HOST', '127.0.0.1')
 STASH_PORT = None
 STASH_SCHEME = None
 STASH_IP = None
+STASH_HOME = os.environ.get('STASH_HOME', os.path.expanduser('~/.stash'))
 STASH_API_KEY = None
 
 API = None
@@ -55,7 +56,7 @@ def get_api_key(default=None):
         return api_key
 
     log.debug(f'No STASH_API_KEY environment variable set; trying to read from config file')
-    config_filepath = os.path.expanduser(f'~/.stash/config.yml')
+    config_filepath = os.path.join(STASH_HOME, 'config.yml')
     try:
         with open(config_filepath, 'r') as f:
             config = f.read()
