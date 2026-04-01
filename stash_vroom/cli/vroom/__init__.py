@@ -10,6 +10,7 @@ import importlib.resources
 import json
 import os
 import signal
+import string
 import sys
 import httpx
 
@@ -19,9 +20,21 @@ from stash_vroom.stash import get_api_key
 DEFAULT_STASH_SERVER = f'http://localhost:9999'
 DEFAULT_STASH_ENDPOINT = f'{DEFAULT_STASH_SERVER}/graphql'
 
-def _read_doc(name):
-    """Read a bundled text file from this package."""
-    return importlib.resources.files(__package__).joinpath(name).read_text(encoding='utf-8')
+def _read_doc(name, context=None):
+    """Read a bundled text file from this package, with $variable substitution."""
+    text = importlib.resources.files(__package__).joinpath(name).read_text(encoding='utf-8')
+
+    if not context:
+        context = _default_docs_context()
+
+    text = string.Template(text).safe_substitute(context)
+    return text
+
+
+def _default_docs_context():
+    """Build template context for bundled docs."""
+    result = {}
+    return result
 
 
 # ---------------------------------------------------------------------------
