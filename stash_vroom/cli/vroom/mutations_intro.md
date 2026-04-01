@@ -5,10 +5,10 @@ Mutations
 (deletes, tag overwrites, bulk updates) are irreversible. Never execute
 a mutation without clearly understanding the user's intent. When in
 doubt, confirm with the user before executing — especially for:**
-  - **Any delete or destroy operation**
-  - **Bulk updates affecting multiple items**
-  - **Tag/performer ID overwrites (SET mode replaces all existing values)**
-  - **Any operation the user did not explicitly request**
+- **Any delete or destroy operation**
+- **Bulk updates affecting multiple items**
+- **Tag/performer ID overwrites (SET mode replaces all existing values)**
+- **Any operation the user did not explicitly request**
 
 **Always prefer ADD/REMOVE mode over SET when modifying tags or IDs,
 unless the user specifically wants to replace all values.**
@@ -22,13 +22,18 @@ Mutations are executed via `vroom gql` using GraphQL mutation syntax.
 Use `vroom schema mutations` to list all 120+ available mutations, and
 `vroom schema type <InputType>` to see their input fields.
 
-Discovery:
-  vroom schema mutations                         All mutation signatures
-  vroom schema mutations | grep scene            Find scene-related mutations
-  vroom schema mutations | grep Update           Find update mutations
-  vroom schema type SceneUpdateInput             See input fields for scene update
+Discovery
+---------
 
-Common mutation patterns:
+```bash
+vroom schema mutations
+vroom schema mutations | grep scene
+vroom schema mutations | grep Update
+vroom schema type SceneUpdateInput
+```
+
+Common Patterns
+---------------
 
 ```bash
 # Update a performer
@@ -48,9 +53,13 @@ Notes:
 - Mutations return the updated object — request the fields you want to verify
 - sceneUpdate's tag_ids, performer_ids, etc. are full replacements, not additions
 
-Updating tags (and performer_ids, studio_id, etc.) without full replacement: `bulkSceneUpdate` accepts `tag_ids` as `BulkUpdateIds: {ids: [...], mode: MODE}`
+Bulk Updates Without Full Replacement
+-------------------------------------
 
-  Modes (BulkUpdateIdMode):
+`bulkSceneUpdate` accepts `tag_ids` as `BulkUpdateIds: {ids: [...], mode: MODE}`
+
+Modes (BulkUpdateIdMode):
+
     SET      Replace all (same as sceneUpdate's tag_ids)
     ADD      Add to existing, keep the rest
     REMOVE   Remove specific, keep the rest

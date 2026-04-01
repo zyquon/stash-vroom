@@ -1,5 +1,6 @@
 Data Model
 ----------
+
 Scene       ->  Studio?, Performers*, Tags*, Markers*, VideoFiles* (usually 1 file)
 Performer   ->  Scenes*, Images*, Tags*; name, gender, favorite
 Studio      ->  ParentStudio?, ChildStudios*, Tags*; hierarchical
@@ -19,44 +20,49 @@ Commands
 
 Getting Data:
 
-  vroom gql <GQL>             Execute GraphQL query argument, or `-f FILE`, or stdin `-f -`
+    vroom gql <GQL>              Execute GraphQL query argument, or `-f FILE`, or stdin `-f -`
 
 Saved UI Filters:
 
-  vroom filters <mode>          List user's saved search filters
-  vroom filter <mode> <name>    Show a saved filter as GQL-ready query
+    vroom filters <mode>         List user's saved search filters
+    vroom filter <mode> <name>   Show a saved filter as GQL-ready query
 
 Valid <mode> values: scenes, images, performers, studios, tags, scene_markers. The most common is "scenes".
 
 Miscellaneous:
 
-  vroom version                 Stash version and endpoint
-  vroom config                  Stash configuration (JSON)
-  vroom stats                   Database row counts
+    vroom version                Stash version and endpoint
+    vroom config                 Stash configuration (JSON)
+    vroom stats                  Database row counts
 
 Learn More
 ----------
-  vroom intro schema            Overview of query syntax, patterns, examples; great starting point
-  vroom intro filters           How saved UI filters work, if the user mentions "filters" or "views" from the UI
-  vroom intro mutations         MANDATORY prior to doing mutations: Safety guide, mutation patterns, and examples
+
+    vroom intro schema           Overview of query syntax, patterns, examples; great starting point
+    vroom intro filters          How saved UI filters work, if the user mentions "filters" or "views" from the UI
+    vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, mutation patterns, and examples
 
 Quick Examples
 --------------
-  vroom stats
 
-  vroom schema search alias
-  vroom schema type Performer
+```bash
+vroom stats
 
-  vroom filters scenes
-  vroom filter scenes "My Filter"
+vroom schema search alias
+vroom schema type Performer
 
-  vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
-  vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
-  vroom gql '{ findPerformers(performer_filter: {name: {value: "Name", modifier: EQUALS}}) { performers { id name } } }'
-  vroom gql '{ findStudios(studio_filter: {name: {value: "Studio", modifier: EQUALS}}) { studios { id name } } }'
-  vroom gql '{ findTags(tag_filter: {name: {value: "^VR", modifier: MATCHES_REGEX}}) { tags { id name } } }'
+vroom filters scenes
+vroom filter scenes "My Filter"
+
+vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
+vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
+vroom gql '{ findPerformers(performer_filter: {name: {value: "Name", modifier: EQUALS}}) { performers { id name } } }'
+vroom gql '{ findStudios(studio_filter: {name: {value: "Studio", modifier: EQUALS}}) { studios { id name } } }'
+vroom gql '{ findTags(tag_filter: {name: {value: "^VR", modifier: MATCHES_REGEX}}) { tags { id name } } }'
+```
 
 Environment
 -----------
-  STASH_URL       GraphQL endpoint (default: http://127.0.0.1:9999/graphql)
-  STASH_API_KEY   API key (also reads ~/.stash/config.yml)
+
+    STASH_URL                    GraphQL endpoint, default: http://127.0.0.1:9999/graphql)
+    STASH_API_KEY                API key, or reads ~/.stash/config.yml
