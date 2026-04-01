@@ -1,14 +1,18 @@
 Data Model
 ----------
-Scene      ->  Studio?, Performers*, Tags*, Markers*, Files* (usually 1 file)
-Image      ->  Studio?, Performers*, Tags*, Files* (usually 1 file)
-Performer  ->  Scenes*, Images*, Tags*; name, gender, favorite
-Studio     ->  ParentStudio?, ChildStudios*, Tags*; hierarchical
-Tag        ->  Parents*, Children*; hierarchical, applied to all types
-Marker     ->  PrimaryTag, Tags*; timestamped bookmark in a Scene
-File       ->  path, size, width, height, duration, fingerprints
+Scene       ->  Studio?, Performers*, Tags*, Markers*, VideoFiles* (usually 1 file)
+Performer   ->  Scenes*, Images*, Tags*; name, gender, favorite
+Studio      ->  ParentStudio?, ChildStudios*, Tags*; hierarchical
+Tag         ->  Parents*, Children*; hierarchical, applied to all types
+SceneMarker ->  PrimaryTag, Tags*; timestamped bookmark in a Scene
+VideoFile   ->  path, basename, size, width, height, duration
 
 Legend: ? = 0 or 1; * = 0 or more; + = 1 or more
+
+Notes:
+- Field names are often non-obvious. To see a type: `vroom schema type <Name>`
+- To learn querying: `vroom intro schema`
+- To learn mutations (MUST read prior to first mutation): `vroom intro mutations`
 
 Commands
 --------
@@ -39,8 +43,13 @@ Learn More
 Quick Examples
 --------------
   vroom stats
+
+  vroom schema search alias
+  vroom schema type Performer
+
   vroom filters scenes
   vroom filter scenes "My Filter"
+
   vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
   vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
   vroom gql '{ findPerformers(performer_filter: {name: {value: "Name", modifier: EQUALS}}) { performers { id name } } }'

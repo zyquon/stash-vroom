@@ -1,8 +1,17 @@
 GraphQL Query Patterns
 ======================
 
+Field Names Are Non-Obvious
+----------------------------
+
+Stash field names often differ from what you'd guess. Always discover fields before writing queries, example:
+
+    vroom schema type --multi Performer Scene
+
 Queries
 -------
+
+These are the most common queries.
 All find* queries follow the same pattern with two filter arguments:
 
   findScenes(filter, scene_filter)              -> count, scenes
