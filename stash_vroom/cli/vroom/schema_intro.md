@@ -11,7 +11,6 @@ All find* queries follow the same pattern with two filter arguments:
   findStudios(filter, studio_filter)            -> count, studios
   findTags(filter, tag_filter)                  -> count, tags
   findSceneMarkers(filter, scene_marker_filter) -> count, scene_markers
-  findSavedFilters(mode)                        -> saved user searches
 
 Use `vroom schema queries` for the full list with signatures.
 
