@@ -62,5 +62,5 @@ vroom gql '{ findTags(tag_filter: {name: {value: "^VR", modifier: MATCHES_REGEX}
 Environment
 -----------
 
-    STASH_URL                    GraphQL endpoint, default: http://localhost:9999/graphql)
+    STASH_URL                    Stash GraphQL endpoint       $STASH_URL_STATUS
     STASH_API_KEY                API key, or reads ~/.stash/config.yml

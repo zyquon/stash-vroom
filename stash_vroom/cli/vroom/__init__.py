@@ -34,6 +34,10 @@ def _read_doc(name, context=None):
 def _default_docs_context():
     """Build template context for bundled docs."""
     result = {}
+
+    stash_url = os.environ.get('STASH_URL')
+    result['STASH_URL_STATUS'] = stash_url if stash_url else f'Unset, default is {DEFAULT_STASH_ENDPOINT}'
+
     return result
 
 
