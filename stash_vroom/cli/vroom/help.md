@@ -63,4 +63,5 @@ Environment
 -----------
 
     STASH_URL                    Stash GraphQL endpoint       $STASH_URL_STATUS
-    STASH_API_KEY                API key, or reads ~/.stash/config.yml
+    STASH_HOME                   Stash config directory       $STASH_HOME_STATUS
+    STASH_API_KEY                API key                      $STASH_API_KEY_STATUS
