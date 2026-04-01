@@ -15,7 +15,7 @@ import sys
 import httpx
 
 
-from stash_vroom.stash import get_api_key
+import stash_vroom.stash
 
 DEFAULT_STASH_SERVER = f'http://localhost:9999'
 DEFAULT_STASH_ENDPOINT = f'{DEFAULT_STASH_SERVER}/graphql'
@@ -151,7 +151,7 @@ INTROSPECT_ROOT = """
 def get_connection(args):
     """Return (url, headers) for Stash API."""
     url = getattr(args, 'url', None) or os.environ.get('STASH_URL', DEFAULT_STASH_ENDPOINT)
-    api_key = getattr(args, 'api_key', None) or get_api_key()
+    api_key = getattr(args, 'api_key', None) or stash_vroom.stash.get_api_key()
     headers = {'ApiKey': api_key, 'Content-Type': 'application/json'}
     return url, headers
 
@@ -865,7 +865,7 @@ def build_parser():
     parser._optionals.title += ' (rarely needed)'
 
     parser.add_argument('--url', help=f'Stash GraphQL endpoint; default: {DEFAULT_STASH_ENDPOINT}')
-    parser.add_argument('--api-key', help='Stash API key; default: <read from ~/.stash/config.yml>')
+    parser.add_argument('--api-key', help=f'Stash API key; default: <read from {stash_vroom.stash.STASH_HOME}/config.yml>')
     parser.add_argument('--json', action='store_true', help='JSON output where applicable')
 
     sub = parser.add_subparsers(dest='command')
