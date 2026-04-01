@@ -16,7 +16,7 @@ import httpx
 
 from stash_vroom.stash import get_api_key
 
-DEFAULT_STASH_SERVER = f'http://127.0.0.1:9999'
+DEFAULT_STASH_SERVER = f'http://localhost:9999'
 DEFAULT_STASH_ENDPOINT = f'{DEFAULT_STASH_SERVER}/graphql'
 
 def _read_doc(name):
