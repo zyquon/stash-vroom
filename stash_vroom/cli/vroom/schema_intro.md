@@ -108,8 +108,8 @@ CriterionModifier Values
   IS_NULL, NOT_NULL            Existence check
   INCLUDES, INCLUDES_ALL       ID list: any match / all must match
   EXCLUDES                     ID list: none may match
-  MATCHES_REGEX                Regex match on strings
-  NOT_MATCHES_REGEX            Regex exclusion
+  MATCHES_REGEX                Go RE2 match; prefix (?i) for case-insensitive
+  NOT_MATCHES_REGEX            Go RE2 exclusion
   BETWEEN, NOT_BETWEEN         Range (use value + value2)
 
 Hierarchical Filters (Tags, Studios)
