@@ -16,6 +16,7 @@ dynamic = ["dependencies", "optional-dependencies", "requires-python"]
 
 [project.scripts]
 ffmpeg-vroom = "stash_vroom.cli.ffmpeg:main"
+vroom = "stash_vroom.cli.vroom:main"  # stash_vroom/cli/vroom/__init__.py
 
 [project.urls]
 bugs = "https://github.com/zyquon/stash-vroom/issues"
