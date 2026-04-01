@@ -24,10 +24,8 @@ Getting Data:
 
 Saved UI Filters:
 
-    vroom filters <mode>         List user's saved search filters
+    vroom filters <mode>         List user's saved search filters for "scenes", "performers", "studios", etc.
     vroom filter <mode> <name>   Show a saved filter as GQL-ready query
-
-Valid <mode> values: scenes, images, performers, studios, tags, scene_markers. The most common is "scenes".
 
 Miscellaneous:
 
@@ -38,9 +36,9 @@ Miscellaneous:
 Learn More
 ----------
 
-    vroom intro schema           Overview of query syntax, patterns, examples; great starting point
+    vroom intro schema           Overview of query syntax, patterns, examples; best starting point
     vroom intro filters          How saved UI filters work, if the user mentions "filters" or "views" from the UI
-    vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, mutation patterns, and examples
+    vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
 
 Quick Examples
 --------------
