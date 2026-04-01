@@ -201,8 +201,8 @@ last_played_at ; Time     ; The last time play count was updated
 play_history   ; [Time!]! ; Times a scene was played
 o_history      ; [Time!]! ; Times the o counter was incremented
 
-# See multiple types in one Bash round-trip, --verbose separates and shows each type clearly
-$ vroom schema type -v Performer Scene VideoFile Tag
+# See multiple types at once; --multi formats the output
+$ vroom schema type --multi Performer Scene VideoFile Tag
 Performer
 ---------
 id   ; ID!

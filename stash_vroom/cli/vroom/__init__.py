@@ -678,19 +678,19 @@ def cmd_schema_types(args):
 
 def cmd_schema_type(args):
     names = args.names
-    verbose = getattr(args, 'verbose', False)
+    is_multi = getattr(args, 'multi', False)
 
-    if len(names) > 1 and not verbose:
-        print("Error: --verbose is required when looking up more than one type", file=sys.stderr)
-        sys.exit(1)
+    if len(names) > 1 and not is_multi:
+        print("INFO: Multiple types passed; enabling --multi mode", file=sys.stderr)
+        is_multi = True
 
     url, headers = get_connection(args)
 
     for name in names:
-        _print_type(url, headers, name, verbose)
+        _print_type(url, headers, name, is_multi)
 
 
-def _print_type(url, headers, name, verbose):
+def _print_type(url, headers, name, is_multi):
     data = gql(url, headers, INTROSPECT_TYPE_DETAIL, {'name': name})
     t = data['__type']
 
@@ -698,7 +698,7 @@ def _print_type(url, headers, name, verbose):
         print(f"Type not found: {name}", file=sys.stderr)
         sys.exit(1)
 
-    if verbose:
+    if is_multi:
         print(t['name'])
         print('-' * len(t['name']))
 
@@ -734,7 +734,7 @@ def _print_type(url, headers, name, verbose):
             rows.append([v['name'], v.get('description')])
         print(format_columns(rows))
 
-    if verbose:
+    if is_multi:
         print()
 
 
@@ -895,7 +895,7 @@ def build_parser():
     p_type = schema_sub.add_parser('type',
         help='Show all fields for a named type')
     p_type.add_argument('names', nargs='+', help='Type name(s) (e.g. Scene, SceneFilterType, CriterionModifier)')
-    p_type.add_argument('--verbose', '-v', action='store_true', help='Prefix with type name, suffix with blank line')
+    p_type.add_argument('--multi', action='store_true', help='Prefix with type name, suffix with blank line')
 
     schema_sub.add_parser('queries',
         help='List all query operations with argument signatures')
