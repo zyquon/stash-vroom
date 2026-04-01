@@ -492,8 +492,7 @@ def cmd_filter(args):
 
     query_name, filter_arg = MODE_QUERY_MAP[mode]
 
-    print(f"# Saved filter: {found['name']} (id {found['id']}, mode {mode})")
-    print(f"# Execute with: vroom gql '<the query below>'")
+    print(f"# Saved filter {mode} id={found['id']}: {json.dumps(found['name'])}")
     print(f"#")
 
     # Build the GQL query string
