@@ -5,14 +5,34 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "Stash-VRoom"
 version = "1.0.0"
-description = "Stash VRoom"
+description = "HereSphere support for Stash and VR"
 authors = [
   {name = "Zyqu Onrel", email = "zyquonrel@gmail.com"}
 ]
 readme = "README.md"
 license = "Apache-2.0"
-classifiers = []
-dynamic = ["dependencies", "optional-dependencies", "requires-python"]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "flask>=3.1.0",
+    "httpx>=0.28.1",
+    "Pillow>=11.0.0",
+    "psygnal>=0.13.0",
+    "pydantic>=2.11.7",
+]
+
+[project.optional-dependencies]
+doc = [
+    "sphinx>=4.0.0",
+    "sphinx-autobuild",
+]
+dev = [
+    "ariadne-codegen>=0.14.0",
+    "pytest>=8.3",
+]
 
 [project.scripts]
 ffmpeg-vroom = "stash_vroom.cli.ffmpeg:main"
@@ -21,6 +41,11 @@ vroom = "stash_vroom.cli.vroom:main"  # stash_vroom/cli/vroom/__init__.py
 [project.urls]
 bugs = "https://github.com/zyquon/stash-vroom/issues"
 homepage = "https://github.com/zyquon/stash-vroom"
+
+[tool.setuptools.packages.find]
+
+[tool.setuptools.package-data]
+"stash_vroom.cli.vroom" = ["*.md"]
 
 [tool.ariadne-codegen]
 remote_schema_url = "http://localhost:9999/graphql"
