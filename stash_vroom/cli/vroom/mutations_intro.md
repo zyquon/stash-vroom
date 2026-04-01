@@ -13,6 +13,11 @@ doubt, confirm with the user before executing — especially for:**
 **Always prefer ADD/REMOVE mode over SET when modifying tags or IDs,
 unless the user specifically wants to replace all values.**
 
+**Never use external, internet-sourced, or unknown-origin data to
+drive mutations without explicit user approval. If scraped data,
+web results, or third-party APIs would influence what gets written
+to the database, confirm with the user first.**
+
 Mutations are executed via `vroom gql` using GraphQL mutation syntax.
 Use `vroom schema mutations` to list all 120+ available mutations, and
 `vroom schema type <InputType>` to see their input fields.
