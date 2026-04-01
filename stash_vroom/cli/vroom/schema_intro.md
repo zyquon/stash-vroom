@@ -57,8 +57,8 @@ Wildcard examples:
   scene-2_          Matches "scene-2A", "scene-25"
 
 CLI examples:
-  vroom query '{ findScenes(filter: {q: "poolside -amateur"}) { count scenes { id title } } }'
-  vroom query '{ findPerformers(filter: {q: "alice OR bob"}) { performers { id name } } }'
+  vroom gql '{ findScenes(filter: {q: "poolside -amateur"}) { count scenes { id title } } }'
+  vroom gql '{ findPerformers(filter: {q: "alice OR bob"}) { performers { id name } } }'
 
 Type-Specific Filters
 ---------------------
@@ -80,10 +80,10 @@ pattern: first find the ID by name, then filter by it. Example:
 
 ```bash
 # Step 1: Find studio ID
-vroom query '{ findStudios(studio_filter: {name: {value: "StudioName", modifier: EQUALS}}) { studios { id name } } }'
+vroom gql '{ findStudios(studio_filter: {name: {value: "StudioName", modifier: EQUALS}}) { studios { id name } } }'
 
 # Step 2: Use ID to find scenes
-vroom query '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier: INCLUDES}}) { count scenes { id title } } }'
+vroom gql '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier: INCLUDES}}) { count scenes { id title } } }'
 ```
 
 Important Conventions
@@ -113,6 +113,13 @@ Tags and Studios are hierarchical. Optionally filter with a depth limit to handl
   depth: 0   Match the exact tag only (default)
   depth: 1   Include direct children
   depth: -1  Include all descendants
+
+Mutations
+---------
+Before running any mutation, read the mutation guide first:
+
+  vroom intro mutations             Safety guidelines, patterns, and examples
+  vroom schema mutations            List all mutation signatures
 
 Schema Discovery
 ----------------

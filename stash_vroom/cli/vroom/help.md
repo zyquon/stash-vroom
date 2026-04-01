@@ -15,7 +15,7 @@ Commands
 
 Getting Data:
 
-  vroom query <GQL>             Execute GraphQL query argument, or `-f FILE`, or stdin `-f -`
+  vroom gql <GQL>             Execute GraphQL query argument, or `-f FILE`, or stdin `-f -`
 
 Saved UI Filters:
 
@@ -32,19 +32,20 @@ Miscellaneous:
 
 Learn More
 ----------
-  vroom schema intro            Overview of syntax, patterns, examples; great starting point
-  vroom filters intro           How saved UI filters (views) work
+  vroom intro schema            Overview of query syntax, patterns, examples; great starting point
+  vroom intro filters           How saved UI filters (views) work
+  vroom intro mutations         Safety guide, mutation patterns, and examples
 
 Quick Examples
 --------------
   vroom stats
   vroom filters scenes
   vroom filter scenes "My Filter"
-  vroom query '{ findScenes(filter: {per_page: 0}) { count } }'
-  vroom query '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
-  vroom query '{ findPerformers(performer_filter: {name: {value: "Name", modifier: EQUALS}}) { performers { id name } } }'
-  vroom query '{ findStudios(studio_filter: {name: {value: "Studio", modifier: EQUALS}}) { studios { id name } } }'
-  vroom query '{ findTags(tag_filter: {name: {value: "^VR", modifier: MATCHES_REGEX}}) { tags { id name } } }'
+  vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
+  vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
+  vroom gql '{ findPerformers(performer_filter: {name: {value: "Name", modifier: EQUALS}}) { performers { id name } } }'
+  vroom gql '{ findStudios(studio_filter: {name: {value: "Studio", modifier: EQUALS}}) { studios { id name } } }'
+  vroom gql '{ findTags(tag_filter: {name: {value: "^VR", modifier: MATCHES_REGEX}}) { tags { id name } } }'
 
 Environment
 -----------

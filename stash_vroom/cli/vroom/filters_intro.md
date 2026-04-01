@@ -11,7 +11,7 @@ name or numeric ID.
 The Stash UI stores filters in its own internal format which differs
 from the GraphQL API input types. The `vroom filter` command converts
 a saved filter into GQL-ready query syntax that can be used directly
-with `vroom query`.
+with `vroom gql`.
 
 Commands
 --------

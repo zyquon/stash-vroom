@@ -337,7 +337,7 @@ def cmd_stats(args):
 # Command: query
 # ---------------------------------------------------------------------------
 
-def cmd_query(args):
+def cmd_gql(args):
     url, headers = get_connection(args)
 
     if args.file:
@@ -362,14 +362,6 @@ def cmd_query(args):
     json_out(data, compact=True)
 
 
-# ---------------------------------------------------------------------------
-# Command: mutate (stub)
-# ---------------------------------------------------------------------------
-
-def cmd_mutate(args):
-    print("Mutations are not yet supported.", file=sys.stderr)
-    print("Use 'vroom schema mutations' to browse available mutations.", file=sys.stderr)
-    sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -392,13 +384,24 @@ def _resolve_filter_mode(args):
     return mode
 
 
-def cmd_filters_intro(args):
-    print(_read_doc('filters_intro.md'), end='')
+def cmd_intro(args):
+    topic = args.topic
+    topics = {
+        'schema': 'schema_intro.md',
+        'filters': 'filters_intro.md',
+        'mutations': 'mutations_intro.md',
+    }
+    if topic not in topics:
+        print(f"Unknown topic: {topic}", file=sys.stderr)
+        print(f"Available topics: {', '.join(topics)}", file=sys.stderr)
+        sys.exit(1)
+    print(_read_doc(topics[topic]), end='')
 
 
 def cmd_filters(args):
     if args.mode.lower() == 'intro':
-        return cmd_filters_intro(args)
+        args.topic = 'filters'
+        return cmd_intro(args)
 
     url, headers = get_connection(args)
     mode = _resolve_filter_mode(args)
@@ -487,7 +490,7 @@ def cmd_filter(args):
     query_name, filter_arg = MODE_QUERY_MAP[mode]
 
     print(f"# Saved filter: {found['name']} (id {found['id']}, mode {mode})")
-    print(f"# Execute with: vroom query '<the query below>'")
+    print(f"# Execute with: vroom gql '<the query below>'")
     print(f"#")
 
     # Build the GQL query string
@@ -635,8 +638,6 @@ def _to_int(val):
 # Command: schema intro
 # ---------------------------------------------------------------------------
 
-def cmd_schema_intro(args):
-    print(_read_doc('schema_intro.md'), end='')
 
 
 # ---------------------------------------------------------------------------
@@ -738,7 +739,7 @@ def _print_type(url, headers, name, verbose):
 # Command: schema queries / schema mutations
 # ---------------------------------------------------------------------------
 
-def _print_root_type_fields(args, kind_label, read_only_note=None):
+def _print_root_type_fields(args, kind_label):
     url, headers = get_connection(args)
     root_data = gql(url, headers, INTROSPECT_ROOT)
 
@@ -765,8 +766,7 @@ def cmd_schema_queries(args):
 
 
 def cmd_schema_mutations(args):
-    _print_root_type_fields(args, 'Mutations',
-                            read_only_note='read-only tool: use vroom query for execution')
+    _print_root_type_fields(args, 'Mutations')
 
 
 # ---------------------------------------------------------------------------
@@ -859,7 +859,11 @@ def build_parser():
     sub.add_parser('config')
     sub.add_parser('stats')
 
-    p_query = sub.add_parser('query',
+    p_intro = sub.add_parser('intro',
+        description='Read introductory guides on a topic.')
+    p_intro.add_argument('topic', help='Topic: schema, filters, mutations')
+
+    p_query = sub.add_parser('gql',
         description='Execute an arbitrary GraphQL query and print the result as JSON.',
         epilog="Reads from stdin if no query or -f given. Use -f - for explicit stdin.")
     p_query.add_argument('query', nargs='?', help='GraphQL query string')
@@ -880,9 +884,6 @@ def build_parser():
         description='Discover types, fields, queries, and mutations in the Stash GraphQL API.')
     schema_sub = p_schema.add_subparsers(dest='schema_command')
 
-    schema_sub.add_parser('intro',
-        help='Query patterns, filter syntax, CriterionModifier, worked examples')
-
     p_types = schema_sub.add_parser('types',
         help='Greppable list of all types (pipe to grep to search)')
     p_types.add_argument('kind', nargs='?', default=None,
@@ -897,7 +898,7 @@ def build_parser():
         help='List all query operations with argument signatures')
 
     schema_sub.add_parser('mutations',
-        help='List all mutation operations (read-only tool, not executable)')
+        help='List all mutation operations with signatures')
 
     p_search = schema_sub.add_parser('search',
         help='Search type names, field names, and enum values')
@@ -925,10 +926,10 @@ def main():
         'version': cmd_version,
         'config': cmd_config,
         'stats': cmd_stats,
-        'query': cmd_query,
-        'mutate': cmd_mutate,
+        'gql': cmd_gql,
         'filters': cmd_filters,
         'filter': cmd_filter,
+        'intro': cmd_intro,
     }
 
     if args.command in dispatch:
@@ -941,7 +942,6 @@ def main():
 
     if args.command == 'schema':
         schema_dispatch = {
-            'intro': cmd_schema_intro,
             'types': cmd_schema_types,
             'type': cmd_schema_type,
             'queries': cmd_schema_queries,
