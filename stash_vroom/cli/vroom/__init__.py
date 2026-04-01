@@ -145,13 +145,19 @@ def gql(url, headers, query, variables=None):
     if variables:
         payload['variables'] = variables
     resp = httpx.post(url, json=payload, headers=headers, timeout=30)
-    resp.raise_for_status()
-    body = resp.json()
+    try:
+        body = resp.json()
+    except Exception:
+        resp.raise_for_status()
+        raise
     if 'errors' in body:
         for err in body['errors']:
             print(f"GraphQL error: {err.get('message', err)}", file=sys.stderr)
         if 'data' not in body or body['data'] is None:
             sys.exit(1)
+    if not resp.is_success:
+        print(f"HTTP {resp.status_code}", file=sys.stderr)
+        sys.exit(1)
     return body.get('data')
 
 
