@@ -386,6 +386,9 @@ def _resolve_filter_mode(args):
 
 def cmd_intro(args):
     topic = args.topic
+    if not topic:
+        print(_read_doc('help.md'), end='')
+        return
     topics = {
         'schema': 'schema_intro.md',
         'filters': 'filters_intro.md',
@@ -861,7 +864,7 @@ def build_parser():
 
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')
-    p_intro.add_argument('topic', help='Topic: schema, filters, mutations')
+    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: schema, filters, mutations')
 
     p_query = sub.add_parser('gql',
         description='Execute an arbitrary GraphQL query and print the result as JSON.',
