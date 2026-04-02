@@ -24,7 +24,7 @@ Getting Data:
 
 Saved UI Filters:
 
-    vroom filters <mode>         List user's saved search filters for "scenes", "performers", "studios", etc.
+    vroom filters                Greppable list of saved searches used by the web UI
     vroom filter <mode> <name>   Show a saved filter as GQL-ready query
 
 Miscellaneous:
@@ -37,7 +37,7 @@ Learn More
 ----------
 
     vroom intro schema           Overview of query syntax, patterns, examples; best starting point
-    vroom intro filters          How saved UI filters work, if the user mentions "filters" or "views" from the UI
+    vroom intro filters          How saved UI filters work, if the user mentions UI "filters", "bookmarks", "views", etc.
     vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
     vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.
 
@@ -50,8 +50,8 @@ vroom stats
 vroom schema search alias
 vroom schema type Performer
 
-vroom filters scenes
-vroom filter scenes "My Filter"
+vroom filters | grep ^SCENES
+vroom filter SCENES "My Filter"
 
 vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
 vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'

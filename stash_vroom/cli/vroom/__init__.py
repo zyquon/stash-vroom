@@ -478,44 +478,21 @@ def cmd_intro(args):
 
 def cmd_filters(args):
     url, headers = get_connection(args)
-    mode = _resolve_filter_mode(args)
 
     query = """
     query($mode: FilterMode!) {
       findSavedFilters(mode: $mode) {
         id mode name
-        find_filter { q page per_page sort direction }
-        object_filter
       }
     }
     """
-    data = gql(url, headers, query, {'mode': mode})
-    filters = data['findSavedFilters']
+    rows = []
+    for mode in FILTER_MODES:
+        data = gql(url, headers, query, {'mode': mode})
+        for f in data['findSavedFilters']:
+            rows.append([mode, str(f['id']), f['name']])
 
-    if not filters:
-        print(f"No saved filters for mode: {mode}")
-        return
-
-    if getattr(args, 'json', False):
-        json_out(filters, compact=True)
-        return
-
-    print(f"Saved Filters ({mode})")
-    print("-" * 50)
-    for f in filters:
-        find = f.get('find_filter') or {}
-        obj = f.get('object_filter') or {}
-        parts = []
-        if find.get('q'):
-            parts.append(f'q={find["q"]!r}')
-        if find.get('sort'):
-            parts.append(f'sort={find["sort"]}')
-        if obj:
-            keys = list(obj.keys())
-            if keys:
-                parts.append(f'filters: {", ".join(keys)}')
-        detail = f'  ({"; ".join(parts)})' if parts else ''
-        print(f"  {f['id']:>4}  {f['name']}{detail}")
+    print(format_columns(rows))
 
 
 # ---------------------------------------------------------------------------
@@ -943,10 +920,8 @@ def build_parser():
     p_query.add_argument('-f', '--file', help='Read query from file (use - for stdin)')
     p_query.add_argument('-v', '--variables', help='JSON string of query variables')
 
-    p_filters = sub.add_parser('filters',
-        description='List saved search filters for a given mode.',
-        epilog='Modes: ' + ', '.join(m.lower() for m in FILTER_MODES))
-    p_filters.add_argument('mode', help='Filter mode: ' + ', '.join(m.lower() for m in FILTER_MODES))
+    sub.add_parser('filters',
+        description='Greppable list of all saved filters across all modes.')
 
     p_filter = sub.add_parser('filter',
         description='Display a saved filter converted to GraphQL query syntax, ready to copy/modify.')
