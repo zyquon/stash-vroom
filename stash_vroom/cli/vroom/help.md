@@ -11,7 +11,7 @@ VideoFile   ->  path, basename, size, width, height, duration
 Legend: ? = 0 or 1; * = 0 or more; + = 1 or more
 
 Notes:
-- To learn querying: `vroom intro schema`
+- To learn querying: `vroom intro queries`
 - Field names are often non-obvious. To see a type: `vroom schema type <Name>`
 - To learn mutations (MUST read prior to first mutation): `vroom intro mutations`
 
@@ -37,7 +37,8 @@ Maintenance and Troubleshooting:
 Learn More
 ----------
 
-    vroom intro schema           Overview of query syntax, patterns, examples; best starting point
+    vroom intro queries          Query syntax, patterns, and examples; best starting point
+    vroom intro discovery        Schema discovery: finding types, fields, queries, mutations
     vroom intro filters          How saved UI filters work, if the user mentions UI "filters", "bookmarks", "views", etc.
     vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
     vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.

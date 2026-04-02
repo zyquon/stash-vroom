@@ -436,7 +436,8 @@ def cmd_intro(args):
         print(_read_doc('help.md'), end='')
         return
     topics = {
-        'schema': 'schema_intro.md',
+        'queries': 'queries_intro.md',
+        'discovery': 'discovery_intro.md',
         'filters': 'filters_intro.md',
         'mutations': 'mutations_intro.md',
         'ui-urls': 'ui-urls_intro.md',
@@ -875,7 +876,7 @@ def build_parser():
 
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')
-    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: schema, filters, mutations, ui-urls')
+    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: queries, discovery, filters, mutations, ui-urls')
 
     p_query = sub.add_parser('gql',
         description='Execute an arbitrary GraphQL query and print the result as JSON.',
