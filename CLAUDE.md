@@ -31,6 +31,7 @@ The project provides utilities in both Python (`stash_vroom/`) and TypeScript (`
 ```bash
 pip install -e .
 ```
+The package is installed editable in the active venv, so CLI entry points like `vroom` are on `$PATH` and reflect source changes instantly — call `vroom` directly, no need for `python -m` or `python -c` wrappers.
 
 **Install with dev dependencies:**
 ```bash
