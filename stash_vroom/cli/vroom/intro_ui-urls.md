@@ -91,19 +91,18 @@ To link a user to a saved filter's view: use `vroom filter <mode> <name>`
 to get its criteria, then construct the browse URL with those criteria
 encoded as `c=` parameters and the find_filter fields as q/sortby/etc.
 
-Default filters: if a view (e.g. /scenes) has a default saved filter
-configured, navigating to the bare path (no query string) automatically
+Default filters: if a view has a default saved filter
+configured, navigating to the bare path (e.g. /scenes) automatically
 applies that filter and populates the URL with its expanded parameters.
 
 Default filters are NOT in the saved filters list — they are stored in
-the UI config blob. Query via `vroom gql '{ configuration { ui } }'`
-and look for `ui.defaultFilters.<key>`, e.g. `ui.defaultFilters.scenes`.
-Each value has the same shape as a saved filter in UI format,
-or is absent if no default is set.
+the UI config blob. To retrieve:
+- As a GQL query: `vroom filter <mode> --default`
+- As JSON: `vroom gql '{ configuration { ui } }'` and look for `ui.defaultFilters.<key>`, e.g. `ui.defaultFilters.scenes`.
 
 Keys include top-level routes (`scenes`, `performers`, `images`, etc.)
 and also sub-view names for embedded list tabs on detail pages:
-`performer_scenes`, `performer_images`, `studio_scenes`, etc. Sub-view
+`performer_scenes`, `performer_images`, `studio_scenes`. Sub-view
 defaults apply to the scenes/images tab within a performer or studio
 detail page — these are not separately URL-addressable.
 

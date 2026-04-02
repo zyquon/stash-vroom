@@ -472,30 +472,50 @@ def cmd_filters(args):
 # Command: filter (show or run)
 # ---------------------------------------------------------------------------
 
+def _fetch_default_filter(url, headers, mode):
+    """Fetch the default filter for a mode from the UI config blob."""
+    data = gql(url, headers, '{ configuration { ui } }')
+    ui = data.get('configuration', {}).get('ui') or {}
+    defaults = ui.get('defaultFilters') or {}
+    key = mode.lower()
+    found = defaults.get(key)
+    if not found:
+        print(f"No default filter for mode: {key}", file=sys.stderr)
+        sys.exit(1)
+    return found
+
+
 def cmd_filter(args):
     url, headers = get_connection(args)
     mode = _resolve_filter_mode(args)
-    name_or_id = args.name
 
-    query = """
-    query($mode: FilterMode!) {
-      findSavedFilters(mode: $mode) {
-        id mode name
-        find_filter { q page per_page sort direction }
-        object_filter
-      }
-    }
-    """
-    data = gql(url, headers, query, {'mode': mode})
-    found = None
-    for f in data['findSavedFilters']:
-        if str(f['id']) == str(name_or_id) or f['name'].lower() == name_or_id.lower():
-            found = f
-            break
+    if getattr(args, 'default', False):
+        found = _fetch_default_filter(url, headers, mode)
+    else:
+        name_or_id = args.name
+        if not name_or_id:
+            print("Provide a filter name/ID, or use --default", file=sys.stderr)
+            sys.exit(1)
 
-    if not found:
-        print(f"Filter not found in {mode}: {name_or_id}", file=sys.stderr)
-        sys.exit(1)
+        query = """
+        query($mode: FilterMode!) {
+          findSavedFilters(mode: $mode) {
+            id mode name
+            find_filter { q page per_page sort direction }
+            object_filter
+          }
+        }
+        """
+        data = gql(url, headers, query, {'mode': mode})
+        found = None
+        for f in data['findSavedFilters']:
+            if str(f['id']) == str(name_or_id) or f['name'].lower() == name_or_id.lower():
+                found = f
+                break
+
+        if not found:
+            print(f"Filter not found in {mode}: {name_or_id}", file=sys.stderr)
+            sys.exit(1)
 
     # Show as GQL-ready syntax
     find_filter = found.get('find_filter') or {}
@@ -509,7 +529,10 @@ def cmd_filter(args):
 
     query_name, filter_arg = MODE_QUERY_MAP[mode]
 
-    print(f"# Saved filter {mode} id={found['id']}: {json.dumps(found['name'])}")
+    if getattr(args, 'default', False):
+        print(f"# Default filter for {mode}")
+    else:
+        print(f"# Saved filter {mode} id={found['id']}: {json.dumps(found['name'])}")
     print(f"#")
 
     # Build the GQL query string
@@ -891,7 +914,8 @@ def build_parser():
     p_filter = sub.add_parser('filter',
         description='Display a saved filter converted to GraphQL query syntax, ready to copy/modify.')
     p_filter.add_argument('mode', help='Filter mode: ' + ', '.join(m.lower() for m in FILTER_MODES))
-    p_filter.add_argument('name', help='Filter name or ID')
+    p_filter.add_argument('name', nargs='?', default=None, help='Filter name or ID')
+    p_filter.add_argument('--default', action='store_true', help='Show the default filter for this mode')
 
     p_schema = sub.add_parser('schema',
         description='Discover types, fields, queries, and mutations in the Stash GraphQL API.')
