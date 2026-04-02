@@ -36,10 +36,10 @@ def _default_docs_context():
     result = {}
 
     stash_url = os.environ.get('STASH_URL')
-    result['STASH_URL_STATUS'] = stash_url if stash_url else f'Currently unset, default is {DEFAULT_STASH_ENDPOINT}'
+    result['STASH_URL_STATUS'] = stash_url if stash_url else f'Unset, default is {DEFAULT_STASH_ENDPOINT}'
 
     stash_home = os.environ.get('STASH_HOME')
-    result['STASH_HOME_STATUS'] = stash_home if stash_home else f'Currently unset, default is {stash_vroom.stash.STASH_HOME}'
+    result['STASH_HOME_STATUS'] = stash_home if stash_home else f'Unset, default is {stash_vroom.stash.STASH_HOME}'
 
     # Base URL for web UI links (GraphQL endpoint minus /graphql suffix)
     gql_url = stash_url or DEFAULT_STASH_ENDPOINT
@@ -51,9 +51,9 @@ def _default_docs_context():
     else:
         api_key = stash_vroom.stash.get_api_key()
         if api_key:
-            result['STASH_API_KEY_STATUS'] = f'Currently unset, using {stash_vroom.stash.STASH_HOME}/config.yml'
+            result['STASH_API_KEY_STATUS'] = f'Unset, using {stash_vroom.stash.STASH_HOME}/config.yml'
         else:
-            result['STASH_API_KEY_STATUS'] = f'Currently unset and no config found!'
+            result['STASH_API_KEY_STATUS'] = f'Unset and no config found!'
 
     return result
 
