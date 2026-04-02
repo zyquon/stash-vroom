@@ -263,13 +263,6 @@ def json_out(data, compact=False):
 
 
 # ---------------------------------------------------------------------------
-# Log levels, ordered by severity
-# ---------------------------------------------------------------------------
-
-LOG_LEVELS = ['Trace', 'Debug', 'Info', 'Progress', 'Warning', 'Error']
-
-
-# ---------------------------------------------------------------------------
 # Command: logs
 # ---------------------------------------------------------------------------
 
@@ -278,28 +271,10 @@ def cmd_logs(args):
     data = gql(url, headers, '{ logs { time level message } }')
     entries = data.get('logs') or []
 
-    min_level = None
-    if args.level:
-        # Case-insensitive match against LOG_LEVELS
-        for lv in LOG_LEVELS:
-            if lv.lower() == args.level.lower():
-                min_level = lv
-                break
-        if min_level is None:
-            print(f"Unknown log level: {args.level!r}", file=sys.stderr)
-            print(f"Valid levels: {', '.join(LOG_LEVELS)}", file=sys.stderr)
-            sys.exit(1)
-
-    if min_level:
-        threshold = LOG_LEVELS.index(min_level)
-        entries = [e for e in entries if LOG_LEVELS.index(e['level']) >= threshold]
-
-    if getattr(args, 'json', False):
-        json_out(entries)
-        return
-
+    rows = []
     for e in entries:
-        print(f"[{e['time']}] {e['level']:<8} {e['message']}")
+        rows.append([e['level'], e['time'], e['message']])
+    print(format_columns(rows))
 
 
 # ---------------------------------------------------------------------------
@@ -399,9 +374,6 @@ def cmd_stats(args):
         ('Markers',    data['findSceneMarkers']['count']),
         ('Galleries',  data['findGalleries']['count']),
     ]
-    if getattr(args, 'json', False):
-        json_out({name: count for name, count in stats})
-        return
     w = max(len(s[0]) for s in stats)
     for name, count in stats:
         print(f"  {name:<{w}}  {count:>8,}")
@@ -523,10 +495,6 @@ def cmd_filter(args):
     if not found:
         print(f"Filter not found in {mode}: {name_or_id}", file=sys.stderr)
         sys.exit(1)
-
-    if getattr(args, 'json', False):
-        json_out(found, compact=True)
-        return
 
     # Show as GQL-ready syntax
     find_filter = found.get('find_filter') or {}
@@ -892,7 +860,6 @@ def build_parser():
 
     parser.add_argument('--url', help=f'Stash GraphQL endpoint; default: {DEFAULT_STASH_ENDPOINT}')
     parser.add_argument('--api-key', help=f'Stash API key; default: <read from {stash_vroom.stash.STASH_HOME}/config.yml>')
-    parser.add_argument('--json', action='store_true', help='JSON output where applicable')
 
     sub = parser.add_subparsers(dest='command')
 
@@ -904,10 +871,8 @@ def build_parser():
     sub.add_parser('config')
     sub.add_parser('stats')
 
-    p_logs = sub.add_parser('logs',
-        description='Show recent Stash log entries (last ~30 cached by the server).')
-    p_logs.add_argument('--level', default=None,
-        help='Minimum log level: ' + ', '.join(LOG_LEVELS))
+    sub.add_parser('logs',
+        description='Greppable list of recent log entries (~30 cached by the server).')
 
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')

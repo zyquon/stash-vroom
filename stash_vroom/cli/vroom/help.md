@@ -32,7 +32,7 @@ Maintenance and Troubleshooting:
     vroom version                Stash version and endpoint
     vroom config                 Stash configuration (JSON)
     vroom stats                  Database row counts
-    vroom logs                   Recent (~30) log entries
+    vroom logs                   Greppable list of recent (~30) log entries
 
 Learn More
 ----------
@@ -47,7 +47,7 @@ Quick Examples
 
 ```bash
 vroom stats
-vroom logs --level Warning
+vroom logs | grep -E '^(Warning|Error)'
 
 vroom schema search alias
 vroom schema type Performer
