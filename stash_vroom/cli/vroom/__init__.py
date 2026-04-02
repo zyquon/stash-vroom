@@ -726,11 +726,6 @@ def cmd_schema_types(args):
     types = [t for t in types if not t['name'].startswith('__')]
     types.sort(key=lambda t: (t['kind'], t['name']))
 
-    kind_filter = getattr(args, 'kind', None)
-    if kind_filter:
-        kind_filter = kind_filter.upper()
-        types = [t for t in types if t['kind'] == kind_filter]
-
     rows = []
     for t in types:
         desc = None
@@ -962,10 +957,8 @@ def build_parser():
         description='Discover types, fields, queries, and mutations in the Stash GraphQL API.')
     schema_sub = p_schema.add_subparsers(dest='schema_command')
 
-    p_types = schema_sub.add_parser('types',
+    schema_sub.add_parser('types',
         help='Greppable list of all types (pipe to grep to search)')
-    p_types.add_argument('kind', nargs='?', default=None,
-        help='Filter by kind: OBJECT, INPUT_OBJECT, ENUM, SCALAR, INTERFACE, UNION')
 
     p_type = schema_sub.add_parser('type',
         help='Show all fields for a named type')
