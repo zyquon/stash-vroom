@@ -436,11 +436,11 @@ def cmd_intro(args):
         print(_read_doc('help.md'), end='')
         return
     topics = {
-        'queries': 'queries_intro.md',
-        'discovery': 'discovery_intro.md',
-        'filters': 'filters_intro.md',
-        'mutations': 'mutations_intro.md',
-        'ui-urls': 'ui-urls_intro.md',
+        'queries': 'intro_queries.md',
+        'discovery': 'intro_discovery.md',
+        'filters': 'intro_filters.md',
+        'mutations': 'intro_mutations.md',
+        'ui-urls': 'intro_ui-urls.md',
     }
     if topic not in topics:
         print(f"Unknown topic: {topic}", file=sys.stderr)
