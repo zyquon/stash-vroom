@@ -46,7 +46,7 @@ homepage = "https://github.com/zyquon/stash-vroom"
 exclude = ["tests*", "doc*", "plugin*"]
 
 [tool.setuptools.package-data]
-"stash_vroom.cli.vroom" = ["*.md"]
+"stash_vroom.cli.vroom" = ["*.md", "intro/*.md"]
 
 [tool.ariadne-codegen]
 remote_schema_url = "http://localhost:9999/graphql"
