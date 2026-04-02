@@ -155,7 +155,6 @@ The browser bundle should be regenerated whenever the TypeScript source changes.
 - Entry point: `vroom` command (registered in `pyproject.toml`)
 - Single module `__init__.py` with bundled `.md` docs (read via `importlib.resources`)
 - Designed for AI coding agents to discover and interact with the Stash GraphQL API
-- Bundled docs in `help.md`, `schema_intro.md`, `filters_intro.md`, `mutations_intro.md`
 
 ### Core Modules (TypeScript)
 
