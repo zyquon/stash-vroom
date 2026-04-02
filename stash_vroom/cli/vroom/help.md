@@ -18,20 +18,21 @@ Notes:
 Commands
 --------
 
-Getting Data:
+Using Data:
 
-    vroom gql <GQL>              Execute GraphQL query argument, or `-f FILE`, or stdin `-f -`
+    vroom gql <GQL>              Execute GraphQL argument, or `-f FILE`, or stdin `-f -`
 
 Saved UI Filters:
 
     vroom filters                Greppable list of saved searches used by the web UI
     vroom filter <mode> <name>   Show a saved filter as GQL-ready query
 
-Miscellaneous:
+Maintenance and Troubleshooting:
 
     vroom version                Stash version and endpoint
     vroom config                 Stash configuration (JSON)
     vroom stats                  Database row counts
+    vroom logs                   Recent (~30) log entries
 
 Learn More
 ----------
@@ -46,6 +47,7 @@ Quick Examples
 
 ```bash
 vroom stats
+vroom logs --level Warning
 
 vroom schema search alias
 vroom schema type Performer
