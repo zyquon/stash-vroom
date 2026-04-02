@@ -1,14 +1,5 @@
-GraphQL Query Patterns
-======================
-
-Field Names Are Non-Obvious
-----------------------------
-
-Stash field names often differ from what you'd guess. Always discover fields before writing queries:
-
-```bash
-vroom schema type --multi Performer Scene
-```
+Querying Stash
+==============
 
 Queries
 -------
@@ -25,10 +16,10 @@ All find* queries follow the same pattern with two filter arguments:
 
 Use `vroom schema queries` for the full list with signatures.
 
-Pagination and Sorting: FindFilterType
---------------------------------------
+Pagination and Sorting
+----------------------
 
-The `filter` argument controls pagination and sorting:
+The common `filter` argument (`FindFilterType`) controls pagination and sorting:
 
     q          String    Text search, detailed below
     page       Int       Page number, default 1
@@ -36,10 +27,9 @@ The `filter` argument controls pagination and sorting:
     sort       String    Field name (e.g. "title", "date", "random")
     direction  Enum      ASC | DESC, default is ASC
 
-Search Syntax (the q field)
----------------------------
+### Text search
 
-The q field supports boolean logic, negation, and exact phrases.
+The `q` field supports boolean logic, negation, and exact phrases.
 It is case-insensitive and matches against type-specific fields:
 
     Scenes:     title, details, path, oshash, checksum, marker titles
@@ -92,28 +82,6 @@ Filter fields use typed criteria:
     Boolean fields:   true or false directly (no modifier)
     Composable:       AND, OR, NOT (each nests another FilterType)
 
-Two-Step ID Lookup
-------------------
-
-Filtering by Studio, Performer, or Tag requires their IDs. Use a two-step
-pattern: first find the ID by name, then filter by ID:
-
-```bash
-# Step 1: Find studio ID
-vroom gql '{ findStudios(studio_filter: {name: {value: "StudioName", modifier: EQUALS}}) { studios { id name } } }'
-
-# Step 2: Use ID to find scenes
-vroom gql '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier: INCLUDES}}) { count scenes { id title } } }'
-```
-
-Important Conventions
----------------------
-
-    rating100       Ratings are 0-100, not 0-5 (20 = 1 star, 100 = 5 stars)
-    sort: "random"  Random sort; Stash appends a seed, e.g. "random_12345"
-    has_markers     String, not boolean: "true" or "false"
-    is_missing      String field name: e.g. "stash_id", "studio", "performers"
-
 CriterionModifier Values
 -------------------------
 
@@ -137,31 +105,83 @@ Tags and Studios are hierarchical. Optionally filter with a depth limit to handl
     depth: 1   Include direct children
     depth: -1  Include all descendants
 
+Tips
+----
+
+### Field names are non-obvious
+
+Stash field names often differ from what you'd guess. Discover fields rather than guess:
+
+```bash
+vroom schema type --multi Performer Scene
+```
+
+### Pre-fetch IDs you will need
+
+Filtering by Studio, Performer, or Tag requires their IDs. Use a two-step pattern: first find the ID by name, then filter by ID:
+
+```bash
+# Step 1: Find studio ID
+vroom gql '{ findStudios(studio_filter: {name: {value: "StudioName", modifier: EQUALS}}) { studios { id name } } }'
+
+# Step 2: Use ID to find scenes
+vroom gql '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier: INCLUDES}}) { count scenes { id title } } }'
+```
+
+### Important Conventions
+
+    rating100       Ratings are 0-100, not 0-5 (20 = 1 star, 100 = 5 stars)
+    sort: "random"  Random sort; Stash appends a seed, e.g. "random_12345"
+    has_markers     String, not boolean: "true" or "false"
+    is_missing      String field name: e.g. "stash_id", "studio", "performers"
+    alias_list      Performer aliases field is "alias_list", not "aliases"
+
 Mutations
 ---------
 
-Before running any mutation, read the mutation guide first:
+Before the first mutation, read the MANDATORY mutation guide:
 
 ```bash
 vroom intro mutations
-vroom schema mutations
+```
+
+Then, list or grep for supported mutations:
+
+```
+$ vroom schema mutations | grep ^stop
+stopAllJobs: Boolean!
+stopJob(job_id: ID!): Boolean!
 ```
 
 Schema Discovery
-----------------
+================
 
-Use vroom to discover data schemas. These commands help you find what you need:
+Now that you know how to query, you must discover the relevant types and data schemas.
+These commands help you find what you need:
 
-    vroom schema types              All types, alphabetical, one per line
-    vroom schema queries            All query signatures, alphabetical, one per line
+    vroom schema queries            List all query signatures, alphabetical, one per line
+    vroom schema mutations          List all mutation signatures, alphabetical, one per line
+    vroom schema types              List all types, alphabetical, one per line
     vroom schema search <term>      Search across types, fields, enums
     vroom schema type <TypeName>    List fields of a specific type, one per line
 
-Often you first use `queries`, `types`, and/or `search` to know what types to use, followed by `type TypeName` to get specific type schemas.
+Output: queries and mutations
+-----------------------------
 
-### Schema types output
+Both `vroom schema queries` and `vroom schema mutations` output a flat list of signatures:
 
-`vroom schema types` is formatted either 2-column "KIND ; TypeName" or 3-column "KIND ; TypeName ; Description if present". Padding aligns the columns. Example of each kind:
+```
+$ vroom schema queries | grep '^findTag('
+findTag(id: ID!): Tag
+
+$ vroom schema mutations | grep ^imageResetO
+imageResetO(id: ID!): Int!
+```
+
+Output: types
+-------------
+
+`vroom schema types` is formatted one type per line, either 2-column "KIND ; TypeName" or 3-column "KIND ; TypeName ; Description if present". Padding aligns the columns. Example of each kind:
 
     ENUM         ; LogLevel
     INPUT_OBJECT ; StashConfigInput ; Stash configuration details
@@ -176,31 +196,20 @@ There are about 300 total types. Use `grep` to find what you need:
 # Filter by kind
 vroom schema types | grep ^SCALAR
 
-# Type substring match
+# Substring match
 vroom schema types | grep ^OBJECT | grep Performer
 
-# Type prefix match
+# Prefix match
 vroom schema types | grep ^OBJECT | grep '; Performer'
 
-# Type suffix match
-vroom schema types | grep ^OBJECT | grep 'Result\b'
-
-# Type exact match
+# Exact match
 vroom schema types | grep ^OBJECT | grep '; Performer\b'
 ```
 
-### Schema queries output
+Output: search
+--------------
 
-Queries are a flat list of queries with signatures:
-
-```
-$ vroom schema queries | grep '^findTag('
-findTag(id: ID!): Tag
-```
-
-### Schema search output
-
-Search results are grouped into matching types, fields, and enums.
+`vroom schema search` results are grouped into matching types, fields, and enums.
 
 ```
 $ vroom schema search loglevel
@@ -212,9 +221,10 @@ Fields matching 'loglevel':
   ConfigGeneralResult.logLevel: String!
 ```
 
-### Schema type output
+Output: specific type schema
+----------------------------
 
-This is the key command to see a type schema. Lines are formatted with the familiar greppable 2-or-3 column layout: field name, its type, description (if present).
+`vroom schema type` is the key command to see a type schema. Lines are formatted with the familiar greppable 2-or-3 column layout: field name, its type, description (if present).
 
 ```
 $ vroom schema type Scene | grep Time
@@ -224,6 +234,8 @@ last_played_at ; Time     ; The last time play count was updated
 play_history   ; [Time!]! ; Times a scene was played
 o_history      ; [Time!]! ; Times the o counter was incremented
 ```
+
+To look up multiple types in one call, use `--multi` which will show types grouped, with clear headers.
 
 ```
 $ vroom schema type --multi Performer Scene VideoFile Tag
