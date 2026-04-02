@@ -1,4 +1,4 @@
-from stash_vroom.cli.vroom import convert_ui_filter
+from stash_vroom.util import convert_ui_filter
 
 
 # ---------------------------------------------------------------------------

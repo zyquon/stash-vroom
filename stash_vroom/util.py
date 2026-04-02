@@ -70,72 +70,187 @@ def saved_filter_to_find_filter(saved_filter):
 def saved_filter_to_scene_filter(saved_filter):
     object_filter = saved_filter['object_filter']
     object_filter = copy.deepcopy(object_filter)
-    fix_object_filter(object_filter)
+    object_filter = convert_ui_filter(object_filter)
     return json.loads(json.dumps(object_filter)) # Make sure no autogen objects persist.
 
-def fix_object_filter(flt):
-    #log.debug(f'Fix filter:\n' + json.dumps(flt, indent=2))
-    tag_labels = ['tags', 'performer_tags']
-    for tag_label in tag_labels:
-        if tag_label in flt:
-            original = flt[tag_label]
 
-            flt[tag_label] = {}
-            flt[tag_label]['depth'] = original['value']['depth']
-            flt[tag_label]['modifier'] = original['modifier']
+def convert_ui_filter(flt):
+    """Convert Stash UI saved filter format to GraphQL input format.
 
-            if 'items' in original['value']:
-                flt[tag_label]['value'] = [ X['id'] for X in original['value']['items'] ]
-            if 'excluded' in original['value']:
-                flt[tag_label]['excludes'] = [ X['id'] for X in original['value']['excluded'] ]
+    The Stash UI stores filters in its own internal representation which
+    differs from the GraphQL API input types. This function transforms
+    the UI format to valid GraphQL input.
+    """
+    if not isinstance(flt, dict):
+        return flt
 
-    if 'studios' in flt:
-        modifier = flt['studios'].get('modifier')
-        if modifier != 'INCLUDES':
-            raise NotImplementedError(f'Modifier must be INCLUDES for now')
+    flt = dict(flt)  # shallow copy
 
-        val = flt['studios'].get('value')
-        if not val:
-            raise ValueError(f'Filter .studios must have .value property')
+    # HierarchicalMultiCriterionInput fields
+    # UI: {modifier, value: {depth, items: [{id, label}], excluded: [{id, label}]}}
+    # GQL: {modifier, value: [id...], excludes: [id...], depth}
+    hierarchical_fields = [
+        'tags', 'performer_tags', 'scene_tags', 'studios',
+        'parent_tags', 'child_tags', 'parent_studios',
+    ]
+    for key in hierarchical_fields:
+        if key not in flt:
+            continue
+        orig = flt[key]
+        val = orig.get('value', {})
+        if not isinstance(val, dict) or ('items' not in val and 'excluded' not in val):
+            continue
+        result = {'modifier': orig['modifier']}
+        result['value'] = [x['id'] for x in val.get('items', [])]
+        excluded = val.get('excluded', [])
+        if excluded:
+            result['excludes'] = [x['id'] for x in excluded]
+        if 'depth' in val:
+            result['depth'] = _to_int(val['depth'])
+        flt[key] = result
 
-        depth = val.get('depth')
-        if depth != 0:
-            raise ValueError(f'Filter .studios depth must be 0')
+    # MultiCriterionInput fields (no depth)
+    # UI: {modifier, value: {items: [{id, label}], excluded: [{id, label}]}}
+    # GQL: {modifier, value: [id...], excludes: [id...]}
+    for key in ['performers', 'galleries', 'groups', 'movies', 'scenes',
+                 'containing_groups', 'sub_groups']:
+        if key not in flt:
+            continue
+        orig = flt[key]
+        val = orig.get('value', {})
+        if not isinstance(val, dict) or ('items' not in val and 'excluded' not in val):
+            continue
+        result = {'modifier': orig['modifier']}
+        result['value'] = [x['id'] for x in val.get('items', [])]
+        excluded = val.get('excluded', [])
+        if excluded:
+            result['excludes'] = [x['id'] for x in excluded]
+        flt[key] = result
 
-        excludes = val.get('excluded')
-        if not isinstance(excludes, list) or len(excludes) != 0:
-            raise ValueError(f'Filter for .studios excludes must be empty')
+    # IntCriterionInput fields: {modifier, value: {value: N, value2: M}} -> {modifier, value: N}
+    int_fields = [
+        'file_count', 'performer_count', 'rating100', 'o_counter',
+        'play_count', 'resume_time', 'play_duration', 'duration',
+        'tag_count', 'image_count', 'gallery_count', 'performer_age',
+        'interactive_speed', 'framerate', 'bitrate', 'weight',
+        'scene_count', 'marker_count',
+        'height_cm', 'birth_year', 'death_year', 'age', 'penis_length',
+        'zip_file_count', 'containing_group_count', 'sub_group_count',
+    ]
+    for key in int_fields:
+        if key not in flt:
+            continue
+        val = flt[key].get('value')
+        if isinstance(val, dict) and 'value' in val:
+            flt[key]['value'] = _to_int(val['value'])
+            if 'value2' in val and val['value2'] is not None:
+                flt[key]['value2'] = _to_int(val['value2'])
+        elif isinstance(val, str):
+            flt[key]['value'] = _to_int(val)
 
-        studio_ids = [ X['id'] for X in val['items'] ]
+    # String-as-boolean fields: UI stores {modifier: "EQUALS", value: "true"} -> plain string
+    for key in ['is_missing', 'has_markers', 'has_chapters']:
+        if key in flt and isinstance(flt[key], dict):
+            if flt[key].get('modifier') == 'EQUALS':
+                flt[key] = flt[key]['value']
 
-        flt['studios'] = {
-            'depth': depth,
-            'modifier': modifier,
-            'excludes': excludes,
-            'value': studio_ids,
-        }
+    # Boolean fields: UI stores {modifier: "EQUALS", value: "true"} -> plain bool
+    for key in ['organized', 'performer_favorite', 'interactive',
+                'favourite', 'ignore_auto_tag']:
+        if key in flt and isinstance(flt[key], dict):
+            if flt[key].get('modifier') == 'EQUALS':
+                flt[key] = flt[key]['value'] in ('true', True)
 
-    if 'is_missing' in flt:
-        if isinstance(flt['is_missing'], dict):
-            if flt['is_missing']['modifier'] != 'EQUALS':
-                raise Exception(f'Unknown is_missing: {flt}')
-            flt['is_missing'] = flt['is_missing']['value']
+    # DateCriterionInput fields: {modifier, value: {value: "2024-01-01", value2: "..."}}
+    # -> {modifier, value: "2024-01-01", value2: "..."} (flatten nested, drop empty value2)
+    date_fields = ['date', 'birthdate', 'death_date', 'scene_date']
+    for key in date_fields:
+        if key not in flt:
+            continue
+        val = flt[key].get('value')
+        if isinstance(val, dict) and 'value' in val:
+            flt[key]['value'] = val['value']
+            if val.get('value2'):
+                flt[key]['value2'] = val['value2']
 
-    if 'has_markers' in flt:
-        if isinstance(flt['has_markers'], dict):
-            if flt['has_markers']['modifier'] != 'EQUALS':
-                raise Exception(f'Unknown has_markers: {flt}')
-            flt['has_markers'] = flt['has_markers']['value']
+    # TimestampCriterionInput fields: same nesting as date, plus normalize
+    # space-separated datetime to ISO 8601 (T separator)
+    timestamp_fields = ['created_at', 'updated_at', 'last_played_at',
+                        'scene_created_at', 'scene_updated_at']
+    for key in timestamp_fields:
+        if key not in flt:
+            continue
+        val = flt[key].get('value')
+        if isinstance(val, dict) and 'value' in val:
+            flt[key]['value'] = _normalize_timestamp(val['value'])
+            if val.get('value2'):
+                flt[key]['value2'] = _normalize_timestamp(val['value2'])
 
-    if 'performer_favorite' in flt:
-        if flt['performer_favorite']['modifier'] != 'EQUALS':
-            raise Exception(f'Unknown performer favorite value: {repr(flt)}')
-        flt['performer_favorite'] = flt['performer_favorite']['value'] in ('true', True)
+    # StashIdCriterionInput: {modifier, value: {endpoint, stashID}}
+    # -> {modifier, endpoint, stash_id}
+    if 'stash_id_endpoint' in flt:
+        orig = flt['stash_id_endpoint']
+        val = orig.get('value', {})
+        if isinstance(val, dict) and 'stashID' in val:
+            flt['stash_id_endpoint'] = {
+                'modifier': orig['modifier'],
+                'endpoint': val.get('endpoint', ''),
+                'stash_id': val['stashID'],
+            }
 
-    keys = ['file_count', 'performer_count', 'rating100', 'o_counter']
-    for key in keys:
-        if key in flt:
-            # Convert "value":{"value":N} -> "value":N.
-            value = flt[key]['value']
-            if isinstance(value, dict) and 'value' in value:
-                flt[key]['value'] = value['value']
+    # PhashDistanceCriterionInput: {modifier, value: {value: "hash", distance: N}}
+    # -> {modifier, value: "hash", distance: N}
+    if 'phash_distance' in flt:
+        orig = flt['phash_distance']
+        val = orig.get('value')
+        if isinstance(val, dict) and 'distance' in val:
+            flt['phash_distance'] = {
+                'modifier': orig['modifier'],
+                'value': val['value'],
+                'distance': _to_int(val['distance']),
+            }
+
+    # PHashDuplicationCriterionInput: {modifier, value: "true"/"false"}
+    # -> {duplicated: bool}
+    if 'duplicated_phash' in flt:
+        orig = flt['duplicated_phash']
+        if isinstance(orig, dict) and 'value' in orig:
+            flt['duplicated_phash'] = {
+                'duplicated': orig['value'] in ('true', True),
+            }
+
+    # OrientationCriterionInput: {modifier, value: [enum...]}
+    # -> {value: [enum...]}  (modifier stripped)
+    if 'orientation' in flt:
+        orig = flt['orientation']
+        if isinstance(orig, dict) and isinstance(orig.get('value'), list):
+            flt['orientation'] = {'value': orig['value']}
+
+    # GenderCriterionInput: {modifier, value: [enum...] | "enum"}
+    # -> {modifier, value_list: [enum...]}  (field rename + legacy single-string)
+    if 'gender' in flt:
+        orig = flt['gender']
+        if isinstance(orig, dict):
+            val = orig.get('value')
+            if isinstance(val, str):
+                val = [val]
+            flt['gender'] = {'modifier': orig['modifier'], 'value_list': val}
+
+    return flt
+
+
+def _normalize_timestamp(val):
+    """Normalize space-separated datetime to ISO 8601 T separator."""
+    if isinstance(val, str) and ' ' in val:
+        return val.replace(' ', 'T', 1)
+    return val
+
+
+def _to_int(val):
+    """Coerce string-encoded integers from UI format to int."""
+    if isinstance(val, str):
+        try:
+            return int(val)
+        except ValueError:
+            return val
+    return val
