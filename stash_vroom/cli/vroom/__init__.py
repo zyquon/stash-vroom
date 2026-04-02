@@ -168,7 +168,7 @@ INTROSPECT_ROOT = """
 def get_connection(args):
     """Return (url, headers) for Stash API."""
     url = getattr(args, 'url', None) or os.environ.get('STASH_URL', DEFAULT_STASH_ENDPOINT)
-    api_key = getattr(args, 'api_key', None) or stash_vroom.stash.get_api_key()
+    api_key = stash_vroom.stash.get_api_key()
     headers = {'ApiKey': api_key, 'Content-Type': 'application/json'}
     return url, headers
 
@@ -859,7 +859,6 @@ def build_parser():
     parser._optionals.title += ' (rarely needed)'
 
     parser.add_argument('--url', help=f'Stash GraphQL endpoint; default: {DEFAULT_STASH_ENDPOINT}')
-    parser.add_argument('--api-key', help=f'Stash API key; default: <read from {stash_vroom.stash.STASH_HOME}/config.yml>')
 
     sub = parser.add_subparsers(dest='command')
 
