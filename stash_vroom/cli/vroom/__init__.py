@@ -263,6 +263,46 @@ def json_out(data, compact=False):
 
 
 # ---------------------------------------------------------------------------
+# Log levels, ordered by severity
+# ---------------------------------------------------------------------------
+
+LOG_LEVELS = ['Trace', 'Debug', 'Info', 'Progress', 'Warning', 'Error']
+
+
+# ---------------------------------------------------------------------------
+# Command: logs
+# ---------------------------------------------------------------------------
+
+def cmd_logs(args):
+    url, headers = get_connection(args)
+    data = gql(url, headers, '{ logs { time level message } }')
+    entries = data.get('logs') or []
+
+    min_level = None
+    if args.level:
+        # Case-insensitive match against LOG_LEVELS
+        for lv in LOG_LEVELS:
+            if lv.lower() == args.level.lower():
+                min_level = lv
+                break
+        if min_level is None:
+            print(f"Unknown log level: {args.level!r}", file=sys.stderr)
+            print(f"Valid levels: {', '.join(LOG_LEVELS)}", file=sys.stderr)
+            sys.exit(1)
+
+    if min_level:
+        threshold = LOG_LEVELS.index(min_level)
+        entries = [e for e in entries if LOG_LEVELS.index(e['level']) >= threshold]
+
+    if getattr(args, 'json', False):
+        json_out(entries)
+        return
+
+    for e in entries:
+        print(f"[{e['time']}] {e['level']:<8} {e['message']}")
+
+
+# ---------------------------------------------------------------------------
 # Command: version
 # ---------------------------------------------------------------------------
 
@@ -437,10 +477,6 @@ def cmd_intro(args):
 
 
 def cmd_filters(args):
-    if args.mode.lower() == 'intro':
-        args.topic = 'filters'
-        return cmd_intro(args)
-
     url, headers = get_connection(args)
     mode = _resolve_filter_mode(args)
 
@@ -896,6 +932,11 @@ def build_parser():
     sub.add_parser('config')
     sub.add_parser('stats')
 
+    p_logs = sub.add_parser('logs',
+        description='Show recent Stash log entries (last ~30 cached by the server).')
+    p_logs.add_argument('--level', default=None,
+        help='Minimum log level: ' + ', '.join(LOG_LEVELS))
+
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')
     p_intro.add_argument('topic', nargs='?', default=None, help='Topic: schema, filters, mutations, ui-urls')
@@ -909,8 +950,8 @@ def build_parser():
 
     p_filters = sub.add_parser('filters',
         description='List saved search filters for a given mode.',
-        epilog='Modes: intro, ' + ', '.join(m.lower() for m in FILTER_MODES))
-    p_filters.add_argument('mode', help='intro, or a filter mode: ' + ', '.join(m.lower() for m in FILTER_MODES))
+        epilog='Modes: ' + ', '.join(m.lower() for m in FILTER_MODES))
+    p_filters.add_argument('mode', help='Filter mode: ' + ', '.join(m.lower() for m in FILTER_MODES))
 
     p_filter = sub.add_parser('filter',
         description='Display a saved filter converted to GraphQL query syntax, ready to copy/modify.')
@@ -967,6 +1008,7 @@ def main():
         'filters': cmd_filters,
         'filter': cmd_filter,
         'intro': cmd_intro,
+        'logs': cmd_logs,
     }
 
     if args.command in dispatch:
