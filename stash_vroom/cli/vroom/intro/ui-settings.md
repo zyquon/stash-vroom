@@ -12,8 +12,10 @@ Settings Tabs Content Map
 Below is the mapping from settings tab → section headings → config path prefixes.
 Use this to direct users to the right tab and section.
 
-Individual field names within each section can be discovered via
-`vroom schema type ConfigGeneralInput`, `vroom config`, etc.
+Individual field names within each section can be discovered via:
+- `vroom schema type ConfigGeneralInput`
+- `vroom schema type ConfigInterfaceInput`
+- `vroom config`
 
 Sections marked [adv] are only visible when Advanced Mode is enabled
 (toggle at the bottom of the settings sidebar).

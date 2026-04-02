@@ -10,11 +10,6 @@ VideoFile   ->  path, basename, size, width, height, duration
 
 Legend: ? = 0 or 1; * = 0 or more; + = 1 or more
 
-Notes:
-- To learn querying: `vroom intro queries`
-- Field names are often non-obvious. To see a type: `vroom schema type <Name>`
-- To learn mutations (MUST read prior to first mutation): `vroom intro mutations`
-
 Commands
 --------
 

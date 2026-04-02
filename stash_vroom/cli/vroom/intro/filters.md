@@ -32,7 +32,7 @@ Examples
 
 ```bash
 vroom filters
-vroom filters | grep SCENES
+vroom filters | grep ^SCENES
 vroom filters | grep -i jav
 vroom filter scenes "MyFilter"
 vroom filter scenes --default

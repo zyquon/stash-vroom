@@ -132,28 +132,12 @@ vroom gql '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier:
 
     rating100       Ratings are 0-100, not 0-5 (20 = 1 star, 100 = 5 stars)
     sort: "random"  Random sort; Stash appends a seed, e.g. "random_12345"
-    has_markers     String, not boolean: "true" or "false"
+    has_markers     scene_filter field; String, not boolean: "true" or "false"
     is_missing      String field name: e.g. "stash_id", "studio", "performers"
     alias_list      Performer aliases field is "alias_list", not "aliases"
 
-Mutations
----------
+See Also
+--------
 
-Before the first mutation, read the MANDATORY mutation guide:
-
-```bash
-vroom intro mutations
-```
-
-Then, list or grep for supported mutations:
-
-```
-$ vroom schema mutations | grep ^stop
-stopAllJobs: Boolean!
-stopJob(job_id: ID!): Boolean!
-```
-
-Schema Discovery
-----------------
-
-To discover types, fields, and query signatures, run: `vroom intro discovery`
+- MANDATORY before first mutation: `vroom intro mutations`
+- Schema exploration: `vroom intro discovery`
