@@ -441,6 +441,7 @@ def cmd_intro(args):
         'filters': 'intro_filters.md',
         'mutations': 'intro_mutations.md',
         'ui-urls': 'intro_ui-urls.md',
+        'ui-settings': 'intro_ui-settings.md',
     }
     if topic not in topics:
         print(f"Unknown topic: {topic}", file=sys.stderr)
@@ -899,7 +900,7 @@ def build_parser():
 
     p_intro = sub.add_parser('intro',
         description='Read introductory guides on a topic.')
-    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: queries, discovery, filters, mutations, ui-urls')
+    p_intro.add_argument('topic', nargs='?', default=None, help='Topic: queries, discovery, filters, mutations, ui-urls, ui-settings')
 
     p_query = sub.add_parser('gql',
         description='Execute an arbitrary GraphQL query and print the result as JSON.',
