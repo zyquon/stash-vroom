@@ -11,18 +11,23 @@ const PATH = `/plugins/VRoom`
 
 // import MainNavBar from "./components/MainNavBar";
 import PluginHome from "./PluginHome.jsx"
+import BlindInput from "./components/BlindInput/BlindInput.jsx"
 
 export default () => {
   const { Icon } = PluginApi.components;
 
-  PluginApi.register.route(PATH, PluginHome)
+  // Main route: Blind input sidecar (full-screen touch surface)
+  PluginApi.register.route(PATH, BlindInput)
+
+  // Settings route: Original config page
+  PluginApi.register.route(`${PATH}/settings`, PluginHome)
 
   PluginApi.patch.before("MainNavBar.UtilityItems", (props) => [
     {
       children: (
         <>
           <NavLink className="nav-utility" to={PATH}>
-            <Button className="minimal d-flex align-items-center h-100 btn btn-primary" title="VRoom hello world tooltip?">
+            <Button className="minimal d-flex align-items-center h-100 btn btn-primary" title="VRoom Blind Input">
               <Icon icon={faVrCardboard} />
             </Button>
           </NavLink>
