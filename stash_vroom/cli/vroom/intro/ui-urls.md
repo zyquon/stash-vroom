@@ -83,41 +83,27 @@ Full URL example — scenes rated 4+ stars, sorted by date descending, maximum z
 Saved Filters
 -------------
 
-When a user clicks a saved filter in the UI, Stash expands it into
+For Saved Filters background: `vroom intro filters`
+
+When a user clicks a Saved Filter in the UI, Stash expands it into
 the full set of query parameters and updates the URL. The URL always
 contains the complete filter state.
 
-To link a user to a saved filter's view: use `vroom filter <mode> <name>`
-to get its criteria, then construct the browse URL with those criteria
-encoded as `c=` parameters and the find_filter fields as q/sortby/etc.
+To link a user to a Saved Filter's view: `vroom filter url <mode> <ident>`
 
-Default filters: if a view has a default saved filter
-configured, navigating to the bare path (e.g. /scenes) automatically
-applies that filter and populates the URL with its expanded parameters.
+To link to a view with its default filter applied, just link the bare
+path (e.g. `$STASH_BASE_URL/scenes`) — Stash applies the default
+automatically. Sub-view defaults (e.g. `performer_scenes`) are not
+separately URL-addressable.
 
-Default filters are NOT in the saved filters list — they are stored in
-the UI config blob. To retrieve:
-- As a GQL query: `vroom filter <mode> --default`
-- As JSON: `vroom gql '{ configuration { ui } }'` and look for `ui.defaultFilters.<key>`, e.g. `ui.defaultFilters.scenes`.
+Raw access to default filter JSON:
 
-Keys include top-level routes (`scenes`, `performers`, `images`, etc.)
-and also sub-view names for embedded list tabs on detail pages:
-`performer_scenes`, `performer_images`, `studio_scenes`. Sub-view
-defaults apply to the scenes/images tab within a performer or studio
-detail page — these are not separately URL-addressable.
-
-Examples:
-
-    # List all default filter keys
-    vroom gql '{ configuration { ui } }' | jq '.configuration.ui.defaultFilters | keys'
-
-    # Top-level
     vroom gql '{ configuration { ui } }' | jq '.configuration.ui.defaultFilters.scenes'
-    {"mode":"SCENES","find_filter":{"sort":"created_at","direction":"DESC","per_page":20},"object_filter":{"tags":{"modifier":"INCLUDES_ALL","value":{"items":[],"excluded":[{"id":"702","label":"Sys | Deleted"}]}}}}
-
-    # Sub-view — scenes tab on a studio detail page
     vroom gql '{ configuration { ui } }' | jq '.configuration.ui.defaultFilters.studio_scenes'
-    {"mode":"SCENES","find_filter":{"sort":"date","direction":"DESC","per_page":"120"},"object_filter":{}}
+
+Raw access to saved filter JSON (`object_filter` is in UI format):
+
+    vroom gql '{ findSavedFilters(mode: SCENES) { id name find_filter { q page per_page sort direction } object_filter } }'
 
 Settings Pages
 --------------
