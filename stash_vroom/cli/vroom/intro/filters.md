@@ -17,7 +17,7 @@ Commands
     vroom filter gql <mode> <ident>  Output a Saved Filter in GQL query syntax
 
 Values:
-- `mode` - scenes, images, performers, studios, tags, scene_markers, galleries, groups
+- `mode` - SCENES, IMAGES, PERFORMERS, STUDIOS, TAGS, SCENE_MARKERS, GALLERIES, GROUPS
 - `ident` - a name, numeric ID, or `--default`
 
 Using Saved Filters
@@ -47,34 +47,35 @@ Example:
 - In /tags/123/performers, the same saved filters are there, but with a different default filter
 
 Thus, these modes are also valid but only for the `--default` identifier:
-- gallery_images
-- group_performers
-- group_scenes
-- group_sub_groups
-- performer_appears_with
-- performer_galleries
-- performer_groups
-- performer_images
-- performer_scenes
-- studio_children
-- studio_galleries
-- studio_groups
-- studio_images
-- studio_performers
-- studio_scenes
-- tag_galleries
-- tag_images
-- tag_performers
-- tag_markers
-- tag_scenes
+- GALLERY_IMAGES
+- GROUP_PERFORMERS
+- GROUP_SCENES
+- GROUP_SUB_GROUPS
+- PERFORMER_APPEARS_WITH
+- PERFORMER_GALLERIES
+- PERFORMER_GROUPS
+- PERFORMER_IMAGES
+- PERFORMER_SCENES
+- STUDIO_CHILDREN
+- STUDIO_GALLERIES
+- STUDIO_GROUPS
+- STUDIO_IMAGES
+- STUDIO_PERFORMERS
+- STUDIO_SCENES
+- TAG_GALLERIES
+- TAG_IMAGES
+- TAG_PERFORMERS
+- TAG_MARKERS
+- TAG_SCENES
 
 Examples
 --------
 
 ```bash
-vroom filter scenes --default
+vroom filter gql SCENES --default
 
 vroom filters | grep ^SCENES
 vroom filters | grep MyFilter
-vroom filter scenes "MyFilter v3"
+vroom filter gql SCENES "MyFilter v3"
+vroom filter url SCENES "MyFilter v3"
 ```

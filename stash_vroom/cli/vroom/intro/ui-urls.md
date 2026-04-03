@@ -89,7 +89,7 @@ When a user clicks a Saved Filter in the UI, Stash expands it into
 the full set of query parameters and updates the URL. The URL always
 contains the complete filter state.
 
-To link a user to a Saved Filter's view: `vroom filter url <mode> <ident>`
+To link a user to a Saved Filter's view: `vroom filter url <MODE> <ident>`
 
 To link to a view with its default filter applied, just link the bare
 path (e.g. `$STASH_BASE_URL/scenes`) — Stash applies the default
