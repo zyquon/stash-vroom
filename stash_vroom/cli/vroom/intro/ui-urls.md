@@ -35,32 +35,24 @@ Many of these query parameters work identically to FindFilterType in a query:
     perPage ; Items per page (default: 40)                           ; per_page
     p       ; Page number                                            ; page
     c       ; Filter criterion (repeatable, one per criterion)       ; (type-specific filter, see below)
-    disp    ; Display mode (0=Grid, 1=List, 2=Wall)                  ; n/a
+    disp    ; Display mode (0=Grid, 1=List, 2=Wall, 3=Tagger)        ; n/a
     z       ; Zoom index                                             ; n/a
 
 Criterion Encoding
 ------------------
 
-Each `c=` value is a JSON object with `{` and `}` replaced by `(` and `)` (but
-leaving quoted strings untouched). This is Stash's custom URL encoding to
-avoid curly-brace escaping in the address bar.
+Each `c=` value is a JSON object.
 
-Encoding rules:
-1. Build the criterion as JSON
-2. Replace `{` with `(` and `}` with `)` (only outside quoted strings)
-3. URI-encode the result (encodeURI then also encode ?#&;=+)
-
-Example — scenes with a specific performer (ID "42"):
-
-    JSON:  {"type":"performers","modifier":"INCLUDES_ALL","value":{"items":[{"id":"42","label":"Name"}],"excluded":[]}}
-    URL c= ("type":"performers","modifier":"INCLUDES_ALL","value":("items":[("id":"42","label":"Name")],"excluded":[]))
+Note, Stash will redirect to its canonical form, which replaces
+`{`/`}` with `(`/`)` except in quoted strings. If you encounter a URL
+like this, that is Stash's canonical encoding.
 
 Every criterion has `type` (the filter field name) and `modifier`
 (CriterionModifier enum). The `value` shape depends on the type:
 
     Category     ; Value shape                                                 ; Example fields
     ------------ ; ----------------------------------------------------------- ; --------------
-    String       ; "the_value"                                                 ; title, details, path
+    String       ; "the_value"                                                 ; title, details, path (absolute)
     Number/Int   ; ("value":N) or ("value":N,"value2":M) for ranges            ; rating100, duration, play_count
     Date         ; ("value":"YYYY-MM-DD") or with value2 for ranges            ; date, created_at
     ID list      ; ("items":[("id":"X","label":"L")],"excluded":[])            ; performers, galleries, groups

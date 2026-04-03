@@ -13,9 +13,19 @@ Legend: ? = 0 or 1; * = 0 or more; + = 1 or more
 Commands
 --------
 
-Using Data:
+Start Here:
 
-    vroom gql <GQL>              Execute GraphQL argument, or `-f FILE`, or stdin `-f -`
+    vroom intro queries          FIRST READ: Query syntax, patterns, examples
+    vroom gql <GQL>              Execute a query, or `-f FILE`, or stdin `-f -`
+
+`vroom gql` outputs the GraphQL `data` value, unwrapped from its envelope (or an error message).
+
+Learn More (as needed):
+
+    vroom intro discovery        Schema discovery: finding types, fields, queries, mutations
+    vroom intro filters          Saved Filters: the user's quick-access queries (AKA views, bookmarks, etc.), for the web UI
+    vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
+    vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.
 
 Maintenance and Troubleshooting:
 
@@ -23,15 +33,6 @@ Maintenance and Troubleshooting:
     vroom config                 Stash configuration (JSON)
     vroom stats                  Database row counts
     vroom logs                   Greppable list of recent (~30) log entries
-
-Learn More
-----------
-
-    vroom intro queries          Query syntax, patterns, and examples; best starting point
-    vroom intro discovery        Schema discovery: finding types, fields, queries, mutations
-    vroom intro filters          Saved Filters: the user's quick-access queries (AKA views, bookmarks, etc.), for the web UI
-    vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
-    vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.
 
 Quick Examples
 --------------

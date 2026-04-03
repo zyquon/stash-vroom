@@ -1,10 +1,15 @@
 Querying Stash
 ==============
 
-Queries
--------
+General Querying
+----------------
 
-These are the most common queries.
+Use `vroom schema queries` for a greppable list of queries and signatures.
+
+Primary Content Queries
+-----------------------
+
+These are the most often useful queries, for primary data types.
 All find* queries follow the same pattern with two filter arguments:
 
     findScenes(filter, scene_filter)              -> count, scenes
@@ -14,10 +19,14 @@ All find* queries follow the same pattern with two filter arguments:
     findTags(filter, tag_filter)                  -> count, tags
     findSceneMarkers(filter, scene_marker_filter) -> count, scene_markers
 
-Use `vroom schema queries` for the full list with signatures.
+To see all criteria for a given type, inspect its filter type:
 
-Pagination and Sorting
-----------------------
+```bash
+vroom schema type SceneFilterType
+vroom schema type PerformerFilterType
+```
+
+### Pagination and Sorting
 
 The common `filter` argument (`FindFilterType`) controls pagination and sorting:
 
@@ -68,8 +77,7 @@ vroom gql '{ findScenes(filter: {q: "poolside -amateur"}) { count scenes { id ti
 vroom gql '{ findPerformers(filter: {q: "alice OR bob"}) { performers { id name } } }'
 ```
 
-Type-Specific Filters
----------------------
+### Type-Specific Filters
 
 The second argument (scene_filter, image_filter, etc.) is type-specific.
 Use `vroom schema type <TheFilterType>` to see any of: SceneFilterType, ImageFilterType, PerformerFilterType, StudioFilterType, TagFilterType, SceneMarkerFilterType
@@ -82,8 +90,7 @@ Filter fields use typed criteria:
     Boolean fields:   true or false directly (no modifier)
     Composable:       AND, OR, NOT (each nests another FilterType)
 
-CriterionModifier Values
--------------------------
+### CriterionModifier Values
 
     EQUALS, NOT_EQUALS           Exact match / exclusion
     GREATER_THAN, LESS_THAN      Numeric comparison
@@ -94,8 +101,7 @@ CriterionModifier Values
     NOT_MATCHES_REGEX            Go RE2 exclusion
     BETWEEN, NOT_BETWEEN         Range (use value + value2)
 
-Hierarchical Filters (Tags, Studios)
--------------------------------------
+### Hierarchical Filters
 
 Tags and Studios are hierarchical. Optionally filter with a depth limit to handle descendants:
 
@@ -126,6 +132,17 @@ vroom gql '{ findStudios(studio_filter: {name: {value: "StudioName", modifier: E
 
 # Step 2: Use ID to find scenes
 vroom gql '{ findScenes(scene_filter: {studios: {value: ["STUDIO_ID"], modifier: INCLUDES}}) { count scenes { id title } } }'
+```
+
+### Filtering by ID
+
+Not all types support `id` as a filter criterion. Scene, Image, and Gallery
+have `id: IntCriterionInput` (e.g. `{value: 123, modifier: EQUALS}`).
+Studio, Performer, Tag, and SceneMarker do not — use the singular query instead:
+
+```bash
+vroom gql '{ findStudio(id: "33") { id name } }'
+vroom gql '{ findPerformer(id: "456") { id name } }'
 ```
 
 ### Important Conventions
