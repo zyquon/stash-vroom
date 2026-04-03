@@ -1,40 +1,80 @@
-Saved Filters (Views)
-=====================
+Saved Filters
+=============
 
-Saved filters are user-managed search queries created and edited in the
+Saved Filters are user-managed search queries created and edited in the
 Stash web UI. When a user says "my X filter" or "the Y view", they mean
-one of these.
+a Saved Filter.
 
-Each mode (scenes, images, performers, etc.) has its own alphabetical
-list of saved filters, referenced by name or numeric ID.
-
-The Stash UI stores filters in its own internal format which differs
-from the GraphQL API input types. The `vroom filter` command converts
-a saved filter into GQL-ready query syntax that can be used directly
-with `vroom gql`.
+Each mode (scenes, performers, etc.) has a list of Saved Filters. Each
+Saved Filter has a unique name, unique int ID, and defines its
+search, sort, and display parameters.
 
 Commands
 --------
 
-    vroom filters                    Greppable list of all saved filters (pipe to grep to search)
-    vroom filter <mode> <name>       Show a filter as a GQL-ready query
-    vroom filter <mode> --default    Show the default filter for a mode
+    vroom filters                    Greppable list of all Saved Filters
+    vroom filter url <mode> <ident>  Output a URL to the Saved Filter in the web UI
+    vroom filter gql <mode> <ident>  Output a Saved Filter in GQL query syntax
 
-Filter modes: scenes, images, performers, studios, tags, scene_markers, galleries
+Values:
+- `mode` - scenes, images, performers, studios, tags, scene_markers, galleries, groups
+- `ident` - a name, numeric ID, or `--default`
 
-Default filters are configured per-view in the Stash UI and auto-apply
-when navigating to that view with no query string. They are stored in
-the UI config blob, not in the saved filters list, so `vroom filters`
-will not show them. Use `--default` to retrieve them.
+Using Saved Filters
+-------------------
+
+To use a Saved Filter via web GUI, to create links, etc, use its URL.
+
+To run a Saved Filter as a data query, use its GQL query syntax.
+(Stash stores Saved Filters in a different data shape, so `vroom` converts it.)
+
+Default Filters
+---------------
+
+Every mode also has a "default" filter not tracked in its list.
+Default filters auto-apply when navigating to a view with no query string.
+The `--default` identifier will access this filter for a give mode.
+
+Sub-Views
+---------
+
+Some Stash pages have "sub-views" which are views "within" a space
+(e.g. scenes within a performer view, performers within a tag view).
+Sub-views use the same Saved Filters as primary views, but keep their own distinct default filter.
+
+Example:
+- In /performers, there are saved filters, plus a default filter
+- In /tags/123/performers, the same saved filters are there, but with a different default filter
+
+Thus, these modes are also valid but only for the `--default` identifier:
+- gallery_images
+- group_performers
+- group_scenes
+- group_sub_groups
+- performer_appears_with
+- performer_galleries
+- performer_groups
+- performer_images
+- performer_scenes
+- studio_children
+- studio_galleries
+- studio_groups
+- studio_images
+- studio_performers
+- studio_scenes
+- tag_galleries
+- tag_images
+- tag_performers
+- tag_markers
+- tag_scenes
 
 Examples
 --------
 
 ```bash
-vroom filters
-vroom filters | grep ^SCENES
-vroom filters | grep -i jav
-vroom filter scenes "MyFilter"
 vroom filter scenes --default
-vroom filter performers --default
+
+vroom filters | grep ^SCENES
+vroom filters | grep MyFilter
+vroom filter scenes "MyFilter v3"
 ```
