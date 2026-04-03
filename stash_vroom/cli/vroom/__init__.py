@@ -419,15 +419,37 @@ FILTER_MODES = [
     'TAGS', 'SCENE_MARKERS', 'GALLERIES', 'MOVIES', 'GROUPS',
 ]
 
+# Sub-view modes: only valid with --default (they have default filters but
+# no saved filter lists of their own).
+SUBVIEW_MODES = [
+    'GALLERY_IMAGES',
+    'GROUP_PERFORMERS', 'GROUP_SCENES', 'GROUP_SUB_GROUPS',
+    'PERFORMER_APPEARS_WITH', 'PERFORMER_GALLERIES', 'PERFORMER_GROUPS',
+    'PERFORMER_IMAGES', 'PERFORMER_SCENES',
+    'STUDIO_CHILDREN', 'STUDIO_GALLERIES', 'STUDIO_GROUPS',
+    'STUDIO_IMAGES', 'STUDIO_PERFORMERS', 'STUDIO_SCENES',
+    'TAG_GALLERIES', 'TAG_IMAGES', 'TAG_PERFORMERS',
+    'TAG_MARKERS', 'TAG_SCENES',
+]
+
 
 def _resolve_filter_mode(args):
     """Resolve and validate filter mode from args."""
     mode = args.mode.upper()
-    if mode not in FILTER_MODES:
-        print(f"Invalid mode: {mode}", file=sys.stderr)
-        print(f"Valid modes: {', '.join(m.lower() for m in FILTER_MODES)}", file=sys.stderr)
-        sys.exit(1)
-    return mode
+    is_default = getattr(args, 'default', False)
+
+    if mode in FILTER_MODES:
+        return mode
+    if mode in SUBVIEW_MODES:
+        if not is_default:
+            print(f"Sub-view mode '{mode.lower()}' is only valid with --default", file=sys.stderr)
+            sys.exit(1)
+        return mode
+
+    all_modes = FILTER_MODES + (SUBVIEW_MODES if is_default else [])
+    print(f"Invalid mode: {mode}", file=sys.stderr)
+    print(f"Valid modes: {', '.join(all_modes)}", file=sys.stderr)
+    sys.exit(1)
 
 
 def cmd_intro(args):
@@ -486,39 +508,39 @@ def _fetch_default_filter(url, headers, mode):
     return found
 
 
-def cmd_filter(args):
+def _fetch_saved_filter(url, headers, mode, args):
+    """Fetch a saved or default filter. Returns (found, is_default)."""
+    if getattr(args, 'default', False):
+        return _fetch_default_filter(url, headers, mode), True
+
+    name_or_id = args.name
+    if not name_or_id:
+        print("Provide a filter name/ID, or use --default", file=sys.stderr)
+        sys.exit(1)
+
+    query = """
+    query($mode: FilterMode!) {
+      findSavedFilters(mode: $mode) {
+        id mode name
+        find_filter { q page per_page sort direction }
+        object_filter
+      }
+    }
+    """
+    data = gql(url, headers, query, {'mode': mode})
+    for f in data['findSavedFilters']:
+        if str(f['id']) == str(name_or_id) or f['name'].lower() == name_or_id.lower():
+            return f, False
+
+    print(f"Filter not found in {mode}: {name_or_id}", file=sys.stderr)
+    sys.exit(1)
+
+
+def cmd_filter_gql(args):
     url, headers = get_connection(args)
     mode = _resolve_filter_mode(args)
+    found, is_default = _fetch_saved_filter(url, headers, mode, args)
 
-    if getattr(args, 'default', False):
-        found = _fetch_default_filter(url, headers, mode)
-    else:
-        name_or_id = args.name
-        if not name_or_id:
-            print("Provide a filter name/ID, or use --default", file=sys.stderr)
-            sys.exit(1)
-
-        query = """
-        query($mode: FilterMode!) {
-          findSavedFilters(mode: $mode) {
-            id mode name
-            find_filter { q page per_page sort direction }
-            object_filter
-          }
-        }
-        """
-        data = gql(url, headers, query, {'mode': mode})
-        found = None
-        for f in data['findSavedFilters']:
-            if str(f['id']) == str(name_or_id) or f['name'].lower() == name_or_id.lower():
-                found = f
-                break
-
-        if not found:
-            print(f"Filter not found in {mode}: {name_or_id}", file=sys.stderr)
-            sys.exit(1)
-
-    # Show as GQL-ready syntax
     find_filter = found.get('find_filter') or {}
     object_filter = found.get('object_filter') or {}
 
@@ -528,9 +550,11 @@ def cmd_filter(args):
     # Convert UI filter format to GraphQL input format
     object_filter = convert_ui_filter(object_filter)
 
-    query_name, filter_arg = MODE_QUERY_MAP[mode]
+    # Resolve the GQL query mode (sub-view modes map to their parent mode)
+    gql_mode = _subview_parent_mode(mode) if mode in SUBVIEW_MODES else mode
+    query_name, filter_arg = MODE_QUERY_MAP[gql_mode]
 
-    if getattr(args, 'default', False):
+    if is_default:
         print(f"# Default filter for {mode}")
     else:
         print(f"# Saved filter {mode} id={found['id']}: {json.dumps(found['name'])}")
@@ -547,9 +571,95 @@ def cmd_filter(args):
     print(f"  ) {{")
     print(f"    count")
     print(f"    # Add fields here, e.g.:")
-    print(f"    # {_example_fields(mode)}")
+    print(f"    # {_example_fields(gql_mode)}")
     print(f"  }}")
     print(f"}}")
+
+
+def cmd_filter_url(args):
+    url, headers = get_connection(args)
+    mode = _resolve_filter_mode(args)
+    found, is_default = _fetch_saved_filter(url, headers, mode, args)
+
+    find_filter = found.get('find_filter') or {}
+    object_filter = found.get('object_filter') or {}
+
+    # Resolve URL path from mode
+    url_mode = _subview_parent_mode(mode) if mode in SUBVIEW_MODES else mode
+    path = MODE_URL_PATH.get(url_mode, url_mode.lower())
+
+    # Build the base URL
+    gql_url = os.environ.get('STASH_URL', DEFAULT_STASH_ENDPOINT)
+    base_url = gql_url.removesuffix('/graphql')
+
+    print(_build_browse_url(base_url, path, find_filter, object_filter))
+
+
+def _subview_parent_mode(mode):
+    """Map a sub-view mode to its parent filter mode."""
+    # e.g. PERFORMER_SCENES -> SCENES, STUDIO_IMAGES -> IMAGES
+    parts = mode.split('_', 1)
+    if len(parts) == 2:
+        child = parts[1]
+        # Handle multi-word like SUB_GROUPS -> GROUPS, APPEARS_WITH -> PERFORMERS
+        child_map = {
+            'SUB_GROUPS': 'GROUPS',
+            'APPEARS_WITH': 'PERFORMERS',
+            'CHILDREN': 'STUDIOS',
+            'MARKERS': 'SCENE_MARKERS',
+        }
+        resolved = child_map.get(child, child)
+        if resolved in FILTER_MODES:
+            return resolved
+    return mode
+
+
+# Map mode -> URL path segment
+MODE_URL_PATH = {
+    'SCENES': 'scenes',
+    'IMAGES': 'images',
+    'PERFORMERS': 'performers',
+    'STUDIOS': 'studios',
+    'TAGS': 'tags',
+    'SCENE_MARKERS': 'markers',
+    'GALLERIES': 'galleries',
+    'MOVIES': 'groups',
+    'GROUPS': 'groups',
+}
+
+
+def _build_browse_url(base_url, path, find_filter, object_filter):
+    """Build a Stash browse URL from find_filter and object_filter (UI format)."""
+    from urllib.parse import quote, urlencode
+
+    params = []
+
+    # find_filter fields -> query params
+    ff = {k: v for k, v in (find_filter or {}).items() if v is not None}
+    if 'q' in ff:
+        params.append(('q', ff['q']))
+    if 'sort' in ff:
+        params.append(('sortby', ff['sort']))
+    if 'direction' in ff:
+        params.append(('sortdir', ff['direction'].lower()))
+    if 'per_page' in ff:
+        params.append(('perPage', ff['per_page']))
+    if 'page' in ff and ff['page'] != 1:
+        params.append(('p', ff['page']))
+
+    # object_filter fields -> c= params (one per criterion, in UI format)
+    for field_name, criterion in (object_filter or {}).items():
+        if not isinstance(criterion, dict):
+            c_obj = {"type": field_name, "modifier": "EQUALS", "value": str(criterion).lower()}
+        else:
+            c_obj = {"type": field_name}
+            c_obj.update(criterion)
+        params.append(('c', json.dumps(c_obj, separators=(',', ':'))))
+
+    url = f"{base_url}/{path}"
+    if params:
+        url += '?' + urlencode(params)
+    return url
 
 
 # Map mode → (queryName, filterArgName)
@@ -819,10 +929,14 @@ def build_parser():
         description='Greppable list of all saved filters across all modes.')
 
     p_filter = sub.add_parser('filter',
-        description='Display a saved filter converted to GraphQL query syntax, ready to copy/modify.')
-    p_filter.add_argument('mode', help='Filter mode: ' + ', '.join(m.lower() for m in FILTER_MODES))
-    p_filter.add_argument('name', nargs='?', default=None, help='Filter name or ID')
-    p_filter.add_argument('--default', action='store_true', help='Show the default filter for this mode')
+        description='Show a saved filter as GQL query syntax or as a web UI URL.')
+    filter_sub = p_filter.add_subparsers(dest='filter_command')
+
+    for subcmd, desc in [('gql', 'Show filter as GQL query syntax'), ('url', 'Show filter as a web UI URL')]:
+        p = filter_sub.add_parser(subcmd, description=desc)
+        p.add_argument('mode', help='Filter mode: ' + ', '.join(FILTER_MODES))
+        p.add_argument('name', nargs='?', default=None, help='Filter name or ID')
+        p.add_argument('--default', action='store_true', help='Show the default filter for this mode')
 
     p_schema = sub.add_parser('schema',
         description='Discover types, fields, queries, and mutations in the Stash GraphQL API.')
@@ -870,7 +984,6 @@ def main():
         'stats': cmd_stats,
         'gql': cmd_gql,
         'filters': cmd_filters,
-        'filter': cmd_filter,
         'intro': cmd_intro,
         'logs': cmd_logs,
     }
@@ -882,6 +995,23 @@ def main():
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
         return
+
+    if args.command == 'filter':
+        filter_dispatch = {
+            'gql': cmd_filter_gql,
+            'url': cmd_filter_url,
+        }
+        filter_cmd = getattr(args, 'filter_command', None)
+        if not filter_cmd:
+            parser.parse_args(['filter', '--help'])
+            return
+        if filter_cmd in filter_dispatch:
+            try:
+                filter_dispatch[filter_cmd](args)
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+            return
 
     if args.command == 'schema':
         schema_dispatch = {
