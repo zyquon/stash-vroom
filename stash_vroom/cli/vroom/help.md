@@ -17,11 +17,6 @@ Using Data:
 
     vroom gql <GQL>              Execute GraphQL argument, or `-f FILE`, or stdin `-f -`
 
-Saved UI Filters:
-
-    vroom filters                Greppable list of saved searches used by the web UI
-    vroom filter <mode> <name>   Show a saved filter as GQL-ready query
-
 Maintenance and Troubleshooting:
 
     vroom version                Stash version and endpoint
@@ -34,7 +29,7 @@ Learn More
 
     vroom intro queries          Query syntax, patterns, and examples; best starting point
     vroom intro discovery        Schema discovery: finding types, fields, queries, mutations
-    vroom intro filters          How saved UI filters work, if the user mentions UI "filters", "bookmarks", "views", etc.
+    vroom intro filters          Saved Filters: the user's quick-access queries (AKA views, bookmarks, etc.), for the web UI
     vroom intro mutations        MANDATORY prior to doing mutations: Safety guide, patterns, and examples
     vroom intro ui-urls          Advice for generating Stash web UI URLs to objects, UI filters, views, etc.
 
@@ -44,12 +39,6 @@ Quick Examples
 ```bash
 vroom stats
 vroom logs | grep -E '^(Warning|Error)'
-
-vroom schema search alias
-vroom schema type Performer
-
-vroom filters | grep ^SCENES
-vroom filter SCENES "My Filter"
 
 vroom gql '{ findScenes(filter: {per_page: 0}) { count } }'
 vroom gql '{ findScenes(filter: {q: "keyword"}) { count scenes { id title } } }'
